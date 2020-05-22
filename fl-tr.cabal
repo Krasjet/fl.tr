@@ -1,0 +1,62 @@
+name:                fl-tr
+version:             0.1.0
+synopsis:
+  Some Pandoc filters for personal use.
+description:
+  A work in progress.
+license:             MIT
+license-file:        LICENSE
+author:              Krasjet
+maintainer:          Krasjet
+copyright:           Copyright (c) 2020 Krasjet
+homepage:            https://github.com/Krasjet/fl.tr
+category:            Text
+
+build-type:          Simple
+cabal-version:       2.0
+
+library
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  exposed-modules:
+      Text.Pandoc.Fltr.DashFilter
+      Text.Pandoc.Fltr.KernFilter
+      Text.Pandoc.Fltr.LaTeXFilter
+      Text.Pandoc.Fltr.LinkFilter
+      Text.Pandoc.Fltr.SlashFilter
+      Text.Pandoc.Fltr.SmcpFilter
+      Text.Pandoc.Fltr.LaTeX.Definitions
+      Text.Pandoc.Fltr.LaTeX.EnvOpts
+      Text.Pandoc.Fltr.LaTeX.PostProcessors
+      Text.Pandoc.Fltr.LaTeX.Quote
+      Text.Pandoc.Fltr.LaTeX.Renderer
+  build-depends:
+      base               >=4.10 && <4.15
+    , pandoc-utils
+    , libkst
+    , bytestring        ^>=0.10
+    , base64-bytestring  >=1.0 && <1.2
+    , containers        ^>=0.6
+    , deepseq           ^>=1.4
+    , directory         ^>=1.3
+    , filepath          ^>=1.4
+    , pandoc-types      ^>=1.17.2 || ^>=1.20
+    , parsec             >=3.1.10 && <3.2
+    , PyF               ^>=0.9.0
+    , split             ^>=0.2.3
+    , text              ^>=1.2
+    , template-haskell   >=2.14 && <3
+    , transformers      ^>=0.5
+
+test-suite filter-test
+  hs-source-dirs:      test
+  default-language:    Haskell2010
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall
+  type:                exitcode-stdio-1.0
+  main-is:             Spec.hs
+  build-depends:
+      base          >=4.10 && <4.15
+    , fl-tr
+    , tasty        ^>=1.2
+    , tasty-hspec  ^>=1.1

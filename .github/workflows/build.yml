@@ -1,0 +1,14 @@
+name: build
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: mstksg/setup-stack@v1
+    - uses: actions/cache@v1
+      with:
+        path: ~/.stack
+        key: ${{ runner.os }}-stack-${{ hashFiles('pandoc-utils.cabal') }}-${{ hashFiles('stack.yaml') }}
+        restore-keys: ${{ runner.os }}-stack-
+    - run: 'stack test'

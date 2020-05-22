@@ -1,0 +1,6 @@
+cradle:
+  stack:
+    - path: "./test"
+      component: "fl-tr:test:filter-test"
+    - path: "./"
+      component: "fl-tr:lib"
