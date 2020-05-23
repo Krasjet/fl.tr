@@ -8,10 +8,10 @@ import Text.Pandoc.Filter.Utils
 import qualified Data.Set  as Set
 import qualified Data.Text as T
 
-import Data.Char   (isUpper)
-import Data.Map    (update)
-import Data.Set    (Set)
-import Data.Text   (Text)
+import Data.Char              (isUpper)
+import Data.Map               (update)
+import Data.Set               (Set)
+import Data.Text              (Text)
 import Text.Pandoc.Definition
 
 smcpChars :: Set Char
@@ -68,9 +68,11 @@ metaWhitelist = ["title", "pagetitle"]
 smcpFilter' :: Pandoc -> Pandoc
 smcpFilter' (Pandoc (Meta meta) blocks) = Pandoc (Meta meta') blocks'
   where
-    blocks' = applyFilter (mkFilter c2scFilterInline' <> mkFilter smcpFilterInline') blocks
+    blockFltr :: PartialFilter [Block]
+    blockFltr = mkConcatedFilter [c2scFilterInline', smcpFilterInline']
 
-    meta' = foldr (update $ Just . getFilter (mkFilter c2scFilterInline' <> mkFilter smcpFilterInline')) meta metaWhitelist
+    blocks' = applyFilter blockFltr blocks
+    meta' = foldr (update $ Just . getFilter blockFltr) meta metaWhitelist
 
 smcpFilter :: PandocFilter
 smcpFilter = mkFilter smcpFilter'

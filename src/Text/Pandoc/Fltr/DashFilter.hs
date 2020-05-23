@@ -11,7 +11,7 @@ import Text.Pandoc.Filter.Utils
 
 -- | The em dash character
 emDash :: String
-emDash ="\8212"
+emDash = "\8212"
 
 -- | A helper function for dashFilter that adds nowrap to strings like "str—"
 appendNoWrap :: [String] -> [Inline]

@@ -6,15 +6,15 @@
 packages:
 - completed:
     name: pandoc-utils
-    version: 0.3.0
+    version: 0.3.4
     git: https://github.com/Krasjet/pandoc-utils.git
     pantry-tree:
-      size: 770
-      sha256: 042e7deb125aaa49fe60381a2ba9027b26733faccf6f1714e6f6834f9308581f
-    commit: 17c77b7c352d742820076bdfa9c96deb08faa250
+      size: 771
+      sha256: 6a1b880b8ffd3b2907b33d035f29f5eed0e3156543e407918781e411f6f3dd9a
+    commit: 6ace7bad512414caf703de201712dba0308dd1fe
   original:
     git: https://github.com/Krasjet/pandoc-utils.git
-    commit: 17c77b7c352d742820076bdfa9c96deb08faa250
+    commit: 6ace7bad512414caf703de201712dba0308dd1fe
 - completed:
     name: libkst
     version: 0.1.0
