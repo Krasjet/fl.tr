@@ -75,7 +75,7 @@ tmpFile = "compiling"
 -- * More utility functions specific to the renderer
 
 io :: NFData a => IO a -> ExceptT RenderError IO a
-io = withExceptT IOException . tryIO
+io = withExceptT IOException . tryIODeep
 
 handler :: ExceptT e IO a -> E.IOException -> IO (Either e a)
 handler rgt _ = runExceptT rgt

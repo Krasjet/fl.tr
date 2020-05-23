@@ -21,11 +21,11 @@ packages:
     git: https://github.com/Krasjet/libkst.git
     pantry-tree:
       size: 811
-      sha256: 98024c2c4a04fa4214c2924d5d48401ff3338abe1557f080d805c415e8e9cb64
-    commit: 8e277c181d357d148601be7236aa4315f348e217
+      sha256: 12be6b9297a02c3364a79817eb600aad7bc964197a2e494ad6e853a46a9aaded
+    commit: db46ad36f47091281efa06db14c1469236d7274c
   original:
     git: https://github.com/Krasjet/libkst.git
-    commit: 8e277c181d357d148601be7236aa4315f348e217
+    commit: db46ad36f47091281efa06db14c1469236d7274c
 snapshots:
 - completed:
     size: 496112
