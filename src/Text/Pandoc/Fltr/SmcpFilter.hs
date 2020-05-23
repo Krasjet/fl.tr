@@ -13,6 +13,7 @@ import Data.Map               (update)
 import Data.Set               (Set)
 import Data.Text              (Text)
 import Text.Pandoc.Definition
+import Text.Pandoc.Utils
 
 smcpChars :: Set Char
 smcpChars = Set.fromList ['#', '%']
@@ -48,7 +49,7 @@ replaceFilter
 replaceFilter cond cls (Str str) =
   map (replaceStr cond cls) $
   -- group the elements to save some space
-  T.groupBy (\x y -> cond x == cond y) str
+  T.groupBy (\x y -> cond x == cond y) $ toText str
 -- retain everything else
 replaceFilter _ _ x = [x]
 
