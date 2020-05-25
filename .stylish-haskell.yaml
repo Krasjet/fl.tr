@@ -20,9 +20,4 @@ steps:
       language_prefix: LANGUAGE
       remove_redundant: true
       style: vertical
-  - records:
-      deriving: 2
-      equals: 'indent 3'
-      field_comment: 2
-      first_field: 'indent -2'
   - trailing_whitespace: {}
