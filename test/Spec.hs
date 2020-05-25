@@ -125,6 +125,10 @@ optsSpec = parallel $ do
 
 -- * SVG Processing
 
+expectedAttr :: Attr
+expectedAttr = nullAttr `addKVPair`
+  ("style", "vertical-align:0.273942em;height:1.281888em;width:5.558170em;")
+
 svgSpec :: Spec
 svgSpec = parallel $ do
   svg <- runIO $ TIO.readFile $ "test" </> "data" </> "test" <.> "svg"
@@ -132,6 +136,10 @@ svgSpec = parallel $ do
   describe "postProcessSVG" $
     it "strip comments and id attrs" $
       postProcessSVG svg `shouldBe` expected
+
+  describe "getImgAttr" $
+    it "obtains attributes correctly" $
+      getImgAttr 16 expected `shouldBe` expectedAttr
 
 
 main :: IO ()
