@@ -9,38 +9,49 @@ module Text.Pandoc.Fltr.LaTeX.PostProcessors (
   postProcessSVG
 ) where
 
-import Text.Pandoc.Fltr.LaTeX.Definitions
+
 import Text.Pandoc.Definition
+import Text.Pandoc.Fltr.LaTeX.Definitions
+import Text.Pandoc.Utils
 
+import qualified Data.Text as T
+
+import Data.Maybe        (fromMaybe)
+import Data.Text         (Text)
 import Libkst.Text.Parse
-
-import Data.Text           (Text)
+import Numeric
 
 -- | We will retreive the baseline from viewbox parameters
 viewboxMarker :: Text
 viewboxMarker = " viewBox='"
 
--- | Get the attrbutes
-getImgAttr :: SVG -> Attr
-getImgAttr = mkAttr . extractSVGInfo . skipTo viewboxMarker
+-- | Get the attrbutes for @img@ tag from an SVG image.
+getImgAttr
+  :: Pixel -- ^ base font size
+  -> SVG   -- ^ SVG image
+  -> Attr
+getImgAttr base = mkAttr . extractSVGInfo . skipTo viewboxMarker
+  where
+    -- | Helper function for constructing @img@ tag attribute from 'SVGInfo'.
+    mkAttr :: SVGInfo -> Attr
+    mkAttr info = nullAttr `addKVPair`
+      ("style", "vertical-align:" <> showEm (baseline info) <> ";" <>
+                "height:" <> showEm (height info) <> ";" <>
+                "width:" <> showEm (width info) <> ";"
+      )
 
-mkAttr :: SVGInfo -> Attr
-mkAttr = error "TODO"
-
-
--- -- | attributes
--- baseAdjust :: [(Text, Text)]
--- baseAdjust = [("style", "vertical-align:" <> toText (showFFloat (Just 6) baseline "") <> "pt")]
+    -- | Display point in em as a string
+    showEm :: Point -> Text
+    showEm pt = toText $ showFFloat (Just 6) (pt2em base pt) "em"
 
 -- | Extract attributes from Text
 extractSVGInfo :: Text -> SVGInfo
-extractSVGInfo sfx = error "TODO"
+extractSVGInfo sfx = error (toString sfx)
 
 -- | Remove the id in g tag and clean up comments
 postProcessSVG :: SVG -> SVG
-postProcessSVG xml = error "TODO"
-  -- preG <> "<g>" <> postG
-  --   where
-  --     (_, svg)   = spanL "<svg" xml
-  --     (preG, gTag) = spanL "<g " svg
-  --     (_, postG) = spanR '>' gTag
+postProcessSVG xml = preG <> "<g>" <> postG
+  where
+    svg = skipTo "<svg" xml
+    (preG, gTag) = T.breakOn "<g " svg
+    postG = fromMaybe gTag $ skipAfter ">" gTag

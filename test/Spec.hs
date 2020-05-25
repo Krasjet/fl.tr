@@ -6,14 +6,18 @@ module Main where
 import Test.Tasty
 import Test.Tasty.Hspec
 
-import Data.Default
-import Data.Text                          (Text)
-import System.Directory
-import System.FilePath
-import Text.Pandoc.Builder
 import Text.Pandoc.Fltr.BreakCodeFilter
 import Text.Pandoc.Fltr.LaTeX.Definitions
 import Text.Pandoc.Fltr.LaTeX.DocumentBuilder
+import Text.Pandoc.Fltr.LaTeX.PostProcessors
+
+import qualified Data.Text.IO as TIO
+
+import Data.Default
+import Data.Text           (Text)
+import System.Directory
+import System.FilePath
+import Text.Pandoc.Builder
 import Text.Pandoc.Utils
 import Text.RawString.QQ
 
@@ -119,13 +123,26 @@ optsSpec = parallel $ do
       getTempDir opts3 `shouldReturn` "temp"
       getTempDir opts4 `shouldReturn` "temp" </> "test"
 
+-- * SVG Processing
+
+svgSpec :: Spec
+svgSpec = parallel $ do
+  svg <- runIO $ TIO.readFile $ "test" </> "data" </> "test" <.> "svg"
+  expected <- runIO $ TIO.readFile $ "test" </> "data" </> "expectStrip" <.> "svg"
+  describe "postProcessSVG" $
+    it "strip comments and id attrs" $
+      postProcessSVG svg `shouldBe` expected
+
+
 main :: IO ()
 main = do
   testBreakCode <- testSpec "Break code filter" breakCodeSpec
   testEnvParse <- testSpec "Env parser" envParserSpec
   testOpts <- testSpec "LaTeX filter options" optsSpec
+  testSVGProc <- testSpec "SVG Processing" svgSpec
   defaultMain $ testGroup "Tests"
     [ testBreakCode
     , testEnvParse
     , testOpts
+    , testSVGProc
     ]

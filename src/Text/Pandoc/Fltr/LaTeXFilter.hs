@@ -54,9 +54,13 @@ renderTeXStr opts preamb math texStr = do
 -- | Render the SVG as an actual inline image element with error handling. Note
 -- that we are not displaying the plain SVG inline because there are some
 -- serious rendering issues in many browsers
-renderHandleError :: Maybe LaTeXEnv -> Either RenderError SVG -> Inline
-renderHandleError _ (Left err) = displayError err
-renderHandleError env (Right svg) =
+renderHandleError
+  :: LaTeXFilterOptions -- ^ Render options
+  -> Maybe LaTeXEnv
+  -> Either RenderError SVG
+  -> Inline
+renderHandleError _ _ (Left err) = displayError err
+renderHandleError opts env (Right svg) =
   case env of
     Nothing ->  Image (imgAttrs `addClasses` ["tex", "noenv"]) [] (svgEncoded, "")
     Just e  -> Image (imgAttrs `addClasses` ["tex", T.map escapeStar e]) [] (svgEncoded, "")
@@ -72,7 +76,7 @@ renderHandleError env (Right svg) =
 
       -- | baseline correction of the image
       imgAttrs :: Attr
-      imgAttrs = getImgAttr psvg
+      imgAttrs = getImgAttr (baseFontSize opts) psvg
 
       -- | encoded svg image
       svgEncoded :: Text
@@ -88,7 +92,7 @@ renderInlineSVG
   -> TeXString          -- ^ the tex string to be rendered
   -> IO Inline
 renderInlineSVG opts preamb mt texStr =
-  uncurry renderHandleError <$> renderTeXStr opts preamb mt (T.strip texStr)
+  uncurry (renderHandleError opts) <$> renderTeXStr opts preamb mt (T.strip texStr)
 
 -- | Convert inline TeX strings to SVG images
 latexFilterInline'

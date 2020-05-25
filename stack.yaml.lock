@@ -5,12 +5,12 @@
 
 packages:
 - completed:
-    hackage: pandoc-utils-0.7.0@sha256:b86015404335347fd783e4155065ed309a4ce7b59d0c4d75a1b621a326974481,2255
+    hackage: pandoc-utils-0.7.1@sha256:9e945174ff3585103d8af1ea8fc46b3f4d9e4576edd579e950d502d7c1a4d471,2255
     pantry-tree:
       size: 604
-      sha256: bc5a147c030b80c72aca9844296608ffdcb38e6985be7816afbdf2dd5aaa1402
+      sha256: e14bf21b50fe1f746a24ac19815ab1beee40ee22080d82876012d98b6c9860a4
   original:
-    hackage: pandoc-utils-0.7.0
+    hackage: pandoc-utils-0.7.1
 - completed:
     name: libkst
     version: 0.1.0

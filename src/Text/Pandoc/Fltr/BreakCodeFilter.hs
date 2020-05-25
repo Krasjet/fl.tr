@@ -8,8 +8,7 @@ module Text.Pandoc.Fltr.BreakCodeFilter (
 import qualified Data.Text as T
 
 import Text.Pandoc.Definition
-import Text.Pandoc.Filter.Utils
-import Text.Pandoc.Filter.Utils.AttrBuilder
+import Text.Pandoc.Utils
 
 -- | Add 'break-all' class to long inline code
 breakCode

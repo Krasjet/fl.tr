@@ -11,6 +11,7 @@ module Text.Pandoc.Fltr.LaTeX.Definitions (
   Pixel,
   Point,
   Em,
+  pt2em,
   -- * Attributes
   SVGInfo(..),
   -- * Options
@@ -43,10 +44,17 @@ type Point = Double
 -- | CSS units, not type safe
 type Em = Double
 
+-- | Conversion from Point to Em
+pt2em
+  :: Pixel  -- ^ base font size in pixel
+  -> Point  -- ^ size in @pt@
+  -> Em     -- ^ size in @em@
+pt2em base pt = pt / (0.75 * base)
+
 -- | Information needed to adjust an SVG image for embedding in HTML
 data SVGInfo
    = SVGInfo
-   { baselineAdjust :: !Point
+   { baseline :: !Point
     -- ^ @pt@ from the bottom of the image to the typesetting baseline (min-y).
    , height         :: !Point
     -- ^ image height in @pt@
