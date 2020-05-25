@@ -17,7 +17,6 @@ import qualified Data.Text as T
 import Data.Text                (Text)
 import Libkst.Html
 import Numeric                  (showFFloat)
-import System.FilePath          ((</>))
 import Text.Pandoc.Definition
 import Text.Pandoc.Filter.Utils
 import Text.Pandoc.Utils
@@ -42,19 +41,18 @@ displayError (IOException ex) =
 
 -- | Render a TeXStr to SVG
 renderTeXStr
-  :: String         -- ^ document id for cache dir
+  :: LaTeXFilterOptions   -- ^ document id for cache dir
   -> Maybe MathType -- ^ is math environment
   -> TeXString      -- ^ the tex string to be rendered
   -> IO (Maybe LaTeXEnv, Either RenderError SVG)
-renderTeXStr docId math texStr = do
-  let cacheDir = "cache" </> docId
+renderTeXStr opts math texStr = do
   let (env, texDoc) = case math of
-       Just InlineMath -> (Just "math", mkMathTeXDoc InlineMath texStr)
-       Just DisplayMath -> (Just "displaymath", mkMathTeXDoc DisplayMath texStr)
-       Nothing -> (e, mkTeXDoc (lookupPreamble e) texStr)
+       Just InlineMath -> (Just "math", mkMathDocument InlineMath texStr)
+       Just DisplayMath -> (Just "displaymath", mkMathDocument DisplayMath texStr)
+       Nothing -> (e, mkTeXDocument (lookupPreamble e) texStr)
          where
            e = findEnv texStr
-  (env,) <$> compileSVG cacheDir texDoc
+  (env,) <$> compileSVG opts texDoc
 
 -- | Render the SVG as an actual inline image element with error handling. Note
 -- that we are not displaying the plain SVG inline because there are some
@@ -92,51 +90,48 @@ renderHandleError env (Right svg) =
 
 -- | Render a TeXStr to inline SVG
 renderInlineSVG
-  :: String          -- ^ document id for cache dir
-  -> Maybe MathType -- ^ is math environment
-  -> T.Text           -- ^ the tex string to be rendered
+  :: LaTeXFilterOptions   -- ^ Render options
+  -> Maybe MathType       -- ^ is math environment
+  -> TeXString            -- ^ the tex string to be rendered
   -> IO Inline
-renderInlineSVG docId mt texStr =
-  uncurry renderHandleError <$> renderTeXStr docId mt (T.strip texStr) -- TODO switch to Text instead
+renderInlineSVG opts mt texStr =
+  uncurry renderHandleError <$> renderTeXStr opts mt (T.strip texStr)
 
 -- | Convert inline TeX strings to SVG images
 latexFilterInline'
-  :: String
-  -> Inline
-  -> IO Inline
+  :: LaTeXFilterOptions -- ^ Render options
+  -> Inline -> IO Inline
 -- math environment
-latexFilterInline' docId (Math mathType texStr) =
-  renderInlineSVG docId (Just mathType) texStr
+latexFilterInline' opts (Math mathType texStr) =
+  renderInlineSVG opts (Just mathType) texStr
 -- tex environment
-latexFilterInline' docId (RawInline (Format "tex") texStr) =
-  renderInlineSVG docId Nothing texStr
+latexFilterInline' opts (RawInline (Format "tex") texStr) =
+  renderInlineSVG opts Nothing texStr
 latexFilterInline' _ x = return x
 
 -- * Block filter
 
 -- | Render a TeXStr to block SVG
 renderBlockSVG
-  :: String          -- ^ document id for cache dir
-  -> Maybe MathType -- ^ is math environment
-  -> T.Text         -- ^ the tex string to be rendered
+  :: LaTeXFilterOptions -- ^ Render options
+  -> TeXString          -- ^ The tex string to be rendered
   -> IO Block
-renderBlockSVG docId mt texStr = do
-  i <- renderInlineSVG docId mt texStr
+renderBlockSVG opts texStr = do
+  i <- renderInlineSVG opts Nothing texStr
   return $ Plain [i]
 
 -- | Convert block TeX strings to SVG images
 latexFilterBlock'
-  :: String
-  -> Block
-  -> IO Block
-latexFilterBlock' docId (RawBlock (Format "tex") texStr) =
-  renderBlockSVG docId Nothing texStr
+  :: LaTeXFilterOptions -- ^ Render options
+  -> Block -> IO Block
+latexFilterBlock' opts (RawBlock (Format "tex") texStr) =
+  renderBlockSVG opts texStr
 latexFilterBlock' _ x = return x
 
 -- * partial -> complete filter
 
-latexFilterInline :: String -> PandocFilterM IO
+latexFilterInline :: LaTeXFilterOptions -> PandocFilterM IO
 latexFilterInline = mkFilter . latexFilterInline'
 
-latexFilterBlock :: String -> PandocFilterM IO
+latexFilterBlock :: LaTeXFilterOptions -> PandocFilterM IO
 latexFilterBlock = mkFilter . latexFilterBlock'

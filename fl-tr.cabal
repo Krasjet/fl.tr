@@ -27,7 +27,6 @@ library
       Text.Pandoc.Fltr.SlashFilter
       Text.Pandoc.Fltr.BreakCodeFilter
       Text.Pandoc.Fltr.SmcpFilter
-  other-modules:
       Text.Pandoc.Fltr.LaTeX.Definitions
       Text.Pandoc.Fltr.LaTeX.EnvOpts
       Text.Pandoc.Fltr.LaTeX.PostProcessors
@@ -37,9 +36,9 @@ library
     , pandoc-utils      ^>=0.7.0
     , libkst
     , bytestring        ^>=0.10
-    , base64-bytestring  >=1.0 && <1.2
     , containers        ^>=0.6
     , deepseq           ^>=1.4
+    , data-default      ^>=0.7
     , directory         ^>=1.3
     , filepath          ^>=1.4
     , pandoc-types      ^>=1.20
@@ -58,9 +57,14 @@ test-suite filter-test
   type:                exitcode-stdio-1.0
   main-is:             Spec.hs
   build-depends:
-      base          >=4.10 && <4.15
+      base               >=4.10 && <4.15
     , fl-tr
     , pandoc-utils
-    , pandoc-types ^>=1.20
-    , tasty        ^>=1.2
-    , tasty-hspec  ^>=1.1
+    , pandoc-types      ^>=1.20
+    , tasty             ^>=1.2
+    , tasty-hspec       ^>=1.1
+    , raw-strings-qq    ^>=1.1
+    , text              ^>=1.2
+    , data-default      ^>=0.7
+    , directory         ^>=1.3
+    , filepath          ^>=1.4

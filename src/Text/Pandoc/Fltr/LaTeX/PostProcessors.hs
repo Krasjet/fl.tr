@@ -10,8 +10,8 @@ import Text.Pandoc.Fltr.LaTeX.Definitions
 
 import Libkst.Text.Parse
 
-import Control.Applicative (some, (<|>))
-import Data.List           (foldl')
+-- import Control.Applicative (some, (<|>))
+-- import Data.List           (foldl')
 import Data.Text           (Text)
 
 -- | We will retreive the baseline from viewbox parameters
