@@ -1,20 +1,15 @@
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE RecordWildCards   #-}
 
 -- Heavily modified from https://github.com/phadej/latex-svg
 -- 2020 Krasjet, 2020 Oleg Grenrus, 2015-2019 Liam O'Connor
 
 -- | SVG Renderer for TeX strings inside a markdown file
 module Text.Pandoc.Fltr.LaTeX.Renderer (
-  mkTeXDocument,
-  mkMathDocument,
   compileSVG
 ) where
 
 import Text.Pandoc.Fltr.LaTeX.Definitions
-import Text.Pandoc.Fltr.LaTeX.EnvOpts
 
 import qualified Control.Exception as E
 import qualified Data.Text.IO      as TIO
@@ -29,45 +24,6 @@ import Libkst.IO
 import System.Directory           (removeFile)
 import System.Exit                (ExitCode (..))
 import System.FilePath            ((<.>), (</>))
-import Text.Pandoc.Definition     (MathType (..))
-import Text.RawString.QQ
-
--- | Make latex document for options
-mkTeXDocument
-  :: Preamble    -- ^ environment and preamble
-  -> TeXString   -- ^ tex string to be rendered
-  -> TeXDocument -- ^ output TeX document
-mkTeXDocument preamble texString =
-  [r|\nonstopmode
-\documentclass[12pt]{article}
-\usepackage[active,tightpage]{preview}
-\usepackage{amsmath}
-\usepackage{xcolor}
-\renewcommand{\rmdefault}{zpltlf}
-\usepackage{newpxmath}
-\usepackage[scr=rsfso, cal=cm, bb=ams, frak=pxtx]{mathalfa}|]
-  <> preamble <>
-  [r|\begin{document}
-\begin{preview}|]
-  <> texString <>
-  [r|\end{preview}
-\end{document}|]
-
--- | Make math latex document for options
-mkMathDocument
-  :: MathType     -- ^ environment and preamble
-  -> TeXString    -- ^ tex string to be rendered
-  -> TeXDocument  -- ^ output TeX document
-mkMathDocument InlineMath texStr = mkTeXDocument mathEnv
-  [r|\begin{math}|]
-  <> texStr <>
-  [r|\end{math}|]
-mkMathDocument DisplayMath texStr = mkTeXDocument mathEnv
-  [r|\begin{displaymath}|]
-  <> texStr <>
-  [r|\end{displaymath}|]
-
--- * More utility functions specific to the renderer
 
 -- | Perform IO action and convert any IOException to our custom exception.
 io :: NFData a
@@ -94,8 +50,8 @@ cached
   -> FilePath                     -- ^ File hash
   -> ExceptT RenderError IO Text  -- ^ Action
   -> ExceptT RenderError IO Text
-cached cacheDir hash action = do
-  let cachePath = cacheDir </> hash <.> "svg"
+cached dir hash action = do
+  let cachePath = dir </> hash <.> "svg"
   -- only compile a new one if no cache exists
   TIO.readFile cachePath `orElse` do
     result <- action
@@ -124,7 +80,7 @@ compileSVG opts texDoc = runExceptT $ do
 
     -- convert to svg file
     (exitCode', out', err') <- io $ readProcessWithCWD tmpDir "dvisvgm" $
-      ["-n", "-j", "-Z", "1.28", "-e"] ++ ["-o", docHash <.> "svg", docHash <.> "dvi"]
+      ["-n", "-j", "-Z", show $ imageScaling opts, "-e"] ++ ["-o", docHash <.> "svg", docHash <.> "dvi"]
       -- ^ no font and clipjoin w/ zoom 23/18
     when (exitCode' /= ExitSuccess) $ throwE $ DVISVGMFailure (out' <> "\n" <> err')
 

@@ -6,8 +6,13 @@ module Text.Pandoc.Fltr.LaTeX.Definitions (
   -- * Definitions
   TeXString,
   TeXDocument,
-  BaseLine,
   SVG,
+  -- * Units
+  Pixel,
+  Point,
+  Em,
+  -- * Attributes
+  SVGInfo(..),
   -- * Options
   LaTeXFilterOptions(..),
   getCacheDir,
@@ -31,26 +36,43 @@ type TeXString = Text
 -- | A TeX document
 type TeXDocument = Text
 
--- | Number of points (@pt@) from the bottom of the image to the typesetting
--- baseline (min-y).
-type BaseLine = Double
+-- | CSS units, for conversion between 'Point' and 'Em'
+type Pixel = Double
+-- | CSS units, not type safe
+type Point = Double
+-- | CSS units, not type safe
+type Em = Double
+
+-- | Information needed to adjust an SVG image for embedding in HTML
+data SVGInfo
+   = SVGInfo
+   { baselineAdjust :: !Point
+    -- ^ @pt@ from the bottom of the image to the typesetting baseline (min-y).
+   , height         :: !Point
+    -- ^ image height in @pt@
+   , width          :: !Point
+    -- ^ image width in @pt@
+   }
 
 data LaTeXFilterOptions
    = LaTeXFilterOptions
-   { fontScaling :: !Double
+   { imageScaling :: !Double
      -- ^ Scaling of font
-   , cacheDir    :: !(Maybe FilePath)
+   , baseFontSize :: !Pixel
+     -- ^ Base font size of web page, usually 16px, used when conversion to em unit.
+   , cacheDir     :: !(Maybe FilePath)
      -- ^ Cache directory path. 'Nothing' implies use system temp dir.
-   , tempDir     :: !(Maybe FilePath)
+   , tempDir      :: !(Maybe FilePath)
      -- ^ Temporary directory path used for compling. 'Nothing' implies use system temp dir.
-   , docId       :: !(Maybe FilePath)
+   , docId        :: !(Maybe FilePath)
      -- ^ Temp files will be organized by docId. 'Nothing' implies temp files will be written to root directory of @tempDir@.
    }
   deriving (Show, Eq, Read)
 
 instance Default LaTeXFilterOptions where
   def = LaTeXFilterOptions
-    { fontScaling = 1.0
+    { imageScaling = 1.28
+    , baseFontSize = 16
     , cacheDir = Nothing
     , tempDir = Nothing
     , docId = Nothing

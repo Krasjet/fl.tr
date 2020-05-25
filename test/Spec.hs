@@ -13,7 +13,7 @@ import System.FilePath
 import Text.Pandoc.Builder
 import Text.Pandoc.Fltr.BreakCodeFilter
 import Text.Pandoc.Fltr.LaTeX.Definitions
-import Text.Pandoc.Fltr.LaTeX.EnvOpts
+import Text.Pandoc.Fltr.LaTeX.DocumentBuilder
 import Text.Pandoc.Utils
 import Text.RawString.QQ
 
@@ -74,13 +74,13 @@ failEnv =
 
 envParserSpec :: Spec
 envParserSpec = parallel $
-  describe "findEnv" $ do
+  describe "extractEnv" $ do
     runIO $ putStrLn $ toString aliEnv
-    it "finds environment correctly" $
-      findEnv aliEnv `shouldBe` Just "align*"
+    it "extracts environment correctly" $
+      extractEnv aliEnv `shouldBe` Just "align*"
     it "fails on no env " $ do
-      findEnv noEnv `shouldBe` Nothing
-      findEnv failEnv `shouldBe` Nothing
+      extractEnv noEnv `shouldBe` Nothing
+      extractEnv failEnv `shouldBe` Nothing
 
 -- * Test LaTeX options
 

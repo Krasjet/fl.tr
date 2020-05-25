@@ -28,7 +28,7 @@ library
       Text.Pandoc.Fltr.BreakCodeFilter
       Text.Pandoc.Fltr.SmcpFilter
       Text.Pandoc.Fltr.LaTeX.Definitions
-      Text.Pandoc.Fltr.LaTeX.EnvOpts
+      Text.Pandoc.Fltr.LaTeX.DocumentBuilder
       Text.Pandoc.Fltr.LaTeX.PostProcessors
       Text.Pandoc.Fltr.LaTeX.Renderer
   build-depends:
