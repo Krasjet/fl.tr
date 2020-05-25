@@ -1,6 +1,7 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE QuasiQuotes      #-}
-{-# LANGUAGE RecordWildCards  #-}
+{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 -- Heavily modified from https://github.com/phadej/latex-svg
 -- 2020 Krasjet, 2020 Oleg Grenrus, 2015-2019 Liam O'Connor
@@ -10,59 +11,58 @@ module Text.Pandoc.Fltr.LaTeX.Renderer (mkTeXDoc, mkMathTeXDoc, compileSVG) wher
 
 import Text.Pandoc.Fltr.LaTeX.Definitions
 import Text.Pandoc.Fltr.LaTeX.EnvOpts
-import Text.Pandoc.Fltr.LaTeX.Quote
 
 import qualified Control.Exception as E
-import qualified Data.Text.Lazy    as LT
+import qualified Data.Text.IO      as TIO
 
 import Control.DeepSeq            (NFData (..))
 import Control.Monad              (when)
 import Control.Monad.Trans.Except (ExceptT (..), runExceptT, throwE,
                                    withExceptT)
+import Data.Text                  (Text)
 import Libkst.Hash
 import Libkst.IO
 import System.Directory           (removeFile)
 import System.Exit                (ExitCode (..))
 import System.FilePath            ((<.>), (</>))
 import Text.Pandoc.Definition     (MathType (..))
+import Text.RawString.QQ
 
 -- | Make latex document for options
 mkTeXDoc
-  :: Preamble -- ^ environment and preamble
-  -> TeXString       -- ^ tex string to be rendered
-  -> TeXDoc          -- ^ output TeX document
-mkTeXDoc preamble texString = LT.pack [kfmt|\
-\\nonstopmode
-\\documentclass[12pt]{article}
-\\usepackage[active,tightpage]{preview}
-\\usepackage{amsmath}
-\\usepackage{xcolor}
-\\renewcommand{\\rmdefault}{zpltlf}
-\\usepackage{newpxmath}
-\\usepackage[scr=rsfso, cal=cm, bb=ams, frak=pxtx]{mathalfa}
-<preamble>
-\\begin{document}
-\\begin{preview}
-<texString>\
-\\end{preview}
-\\end{document}
-|]
+  :: Preamble    -- ^ environment and preamble
+  -> TeXString   -- ^ tex string to be rendered
+  -> TeXDocument -- ^ output TeX document
+mkTeXDoc preamble texString =
+  [r|\nonstopmode
+  \documentclass[12pt]{article}
+  \usepackage[active,tightpage]{preview}
+  \usepackage{amsmath}
+  \usepackage{xcolor}
+  \renewcommand{\rmdefault}{zpltlf}
+  \usepackage{newpxmath}
+  \usepackage[scr=rsfso, cal=cm, bb=ams, frak=pxtx]{mathalfa}|]
+  <> preamble <>
+  [r|\begin{document}
+  \begin{preview}|]
+  <> texString <>
+  [r|\end{preview}
+  \end{document}
+  |]
 
 -- | Make math latex document for options
 mkMathTeXDoc
-  :: MathType        -- ^ environment and preamble
-  -> TeXString       -- ^ tex string to be rendered
-  -> TeXDoc          -- ^ output TeX document
-mkMathTeXDoc InlineMath texStr = mkTeXDoc mathEnv [kfmt|\
-\\begin{math}
-<texStr>
-\\end{math}
-|]
-mkMathTeXDoc DisplayMath texStr = mkTeXDoc mathEnv [kfmt|\
-\\begin{displaymath}
-<texStr>
-\\end{displaymath}
-|]
+  :: MathType     -- ^ environment and preamble
+  -> TeXString    -- ^ tex string to be rendered
+  -> TeXDocument  -- ^ output TeX document
+mkMathTeXDoc InlineMath texStr = mkTeXDoc mathEnv
+  [r|\begin{math}|]
+  <> texStr <>
+  [r|\end{math}|]
+mkMathTeXDoc DisplayMath texStr = mkTeXDoc mathEnv
+  [r|\begin{displaymath}|]
+  <> texStr <>
+  [r|\end{displaymath}|]
 
 -- | The temp directory for compiling tex file
 tmpDir :: String
@@ -85,42 +85,42 @@ orElse lft rgt = ExceptT $ fmap Right lft `E.catch` handler rgt
 
 cached
   :: String                        -- ^ cache directory
-  -> TeXDoc                        -- ^ tex document
-  -> ExceptT RenderError IO String -- ^ action
-  -> ExceptT RenderError IO String
+  -> TeXDocument                   -- ^ tex document
+  -> ExceptT RenderError IO Text -- ^ action
+  -> ExceptT RenderError IO Text
 cached cacheDir texDoc action = do
   -- the cache
-  let path = cacheDir </> hashText texDoc <.> "svg"
+  let path = cacheDir </> hashText' texDoc <.> "svg"
   -- only compile a new one if no cache exists
-  readFile path `orElse` do
+  TIO.readFile path `orElse` do
     result <- action
-    io $ writeFileHandleMissingS path result
+    io $ writeFileHandleMissing' path result
     return result
 
 -- | Convert a tex string into a SVG image.
 compileSVG
   :: FilePath          -- cache directory for svg files
-  -> TeXDoc        -- the tex string to be compiled
+  -> TeXDocument        -- the tex string to be compiled
   -> IO (Either RenderError SVG)
 compileSVG cacheDir texDoc = runExceptT $
   cached cacheDir texDoc $ do
     -- write to tex file
-    io $ writeFileHandleMissing (tmpDir </> tmpFile <.> "tex") texDoc
+    io $ writeFileHandleMissing' (tmpDir </> tmpFile <.> "tex") texDoc
 
     -- compile latex file
     -- NOTE remember to restrict file access of tex files in texmf.cnf
     -- see https://tex.stackexchange.com/questions/10418
     (exitCode, out, err) <- io $ readProcessWithCWD tmpDir "latex" [tmpFile <.> "tex"]
-    when (exitCode /= ExitSuccess) $ throwE $ LaTeXFailure (out ++ "\n" ++ err)
+    when (exitCode /= ExitSuccess) $ throwE $ LaTeXFailure (out <> "\n" <> err) texDoc
 
     -- convert to svg file
     (exitCode', out', err') <- io $ readProcessWithCWD tmpDir "dvisvgm" $
       ["-n", "-j", "-Z", "1.28", "-e"] ++ ["-o", tmpFile <.> "svg", tmpFile <.> "dvi"]
       -- ^ no font and clipjoin w/ zoom 23/18
-    when (exitCode' /= ExitSuccess) $ throwE $ DVISVGMFailure (out' ++ "\n" ++ err')
+    when (exitCode' /= ExitSuccess) $ throwE $ DVISVGMFailure (out' <> "\n" <> err')
 
     -- read svg file
-    svg <- io $ readFile (tmpDir </> tmpFile <.> "svg")
+    svg <- io $ TIO.readFile (tmpDir </> tmpFile <.> "svg")
 
     -- sometimes dvisvgm will fail without notice
     -- force removing the rendered image to prevent propagating error

@@ -1,42 +1,44 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE TupleSections     #-}
 
 -- | A filter to transform TeX strings to svg images
-module Text.Pandoc.Fltr.LaTeXFilter (latexFilterInline, latexFilterBlock) where
+module Text.Pandoc.Fltr.LaTeXFilter (
+  latexFilterInline,
+  latexFilterBlock,
+) where
 
 import Text.Pandoc.Fltr.LaTeX.Definitions
 import Text.Pandoc.Fltr.LaTeX.EnvOpts
 import Text.Pandoc.Fltr.LaTeX.PostProcessors
 import Text.Pandoc.Fltr.LaTeX.Renderer
-import PyF
 
-import qualified Data.ByteString.Char8 as BS8
-import qualified Data.Text             as T
-import qualified Data.Text.Encoding    as T
+import qualified Data.Text as T
 
-import Data.ByteString.Base64   as Base64
+import Data.Text                (Text)
+import Libkst.Html
+import Numeric                  (showFFloat)
 import System.FilePath          ((</>))
 import Text.Pandoc.Definition
 import Text.Pandoc.Filter.Utils
+import Text.Pandoc.Utils
 
 -- * Utils
 
 -- | Render errors nicely, in order to show any problems clearly, with all
 -- information intact.
 displayError :: RenderError -> Inline
-displayError (LaTeXFailure str) =
-  RawInline (Format "html") $ T.pack e
+displayError (LaTeXFailure str doc) =
+  RawInline (Format "html") e
     where
-      e = "<pre class=\"err\">LaTeX failed.\n" <> str <> "</pre>"
+      e = "<pre class=\"err\">LaTeX failed.\n" <> toText str <> "\nGenerated document:\n" <> doc <> "</pre>"
 displayError (DVISVGMFailure str) =
-  RawInline (Format "html") $ T.pack e
+  RawInline (Format "html") e
     where
-      e = "<pre class=\"err\">dvisvgm failed.\n" <> str <> "</pre>"
+      e = "<pre class=\"err\">dvisvgm failed.\n" <> toText str <> "</pre>"
 displayError (IOException ex) =
-  RawInline (Format "html") $ T.pack e
+  RawInline (Format "html") e
     where
-      e = "<pre class=\"err\">IO exception.\n" <> show ex <> "</pre>"
+      e = "<pre class=\"err\">IO exception.\n" <> toText (show ex) <> "</pre>"
 
 -- | Render a TeXStr to SVG
 renderTeXStr
@@ -61,9 +63,9 @@ renderHandleError :: Maybe LaTeXEnv -> Either RenderError SVG -> Inline
 renderHandleError _ (Left err) = displayError err
 renderHandleError env (Right svg) =
   case env of
-    Nothing -> Image ("", ["tex", "noenv"], attrs) [] (svgE, "")
+    Nothing -> Image ("", ["tex", "noenv"], baseAdjust) [] (svgE, "")
     --                    ^ class
-    Just e  -> Image ("", ["tex", T.pack $ map escapeStar e], attrs) [] (svgE, "")
+    Just e  -> Image ("", ["tex", T.map escapeStar e], baseAdjust) [] (svgE, "")
     where
       -- | escape starred environments, align* -> align_
       escapeStar :: Char -> Char
@@ -79,12 +81,12 @@ renderHandleError env (Right svg) =
       baseline = getBaseline psvg
 
       -- | encoded svg image
-      svgE :: T.Text
-      svgE = "data:image/svg+xml;base64," `T.append` T.decodeUtf8 (Base64.encode $ BS8.pack psvg)
+      svgE :: Text
+      svgE = encodeSVG psvg
 
       -- | attributes
-      attrs :: [(T.Text, T.Text)]
-      attrs = [("style", [fmt|vertical-align: {baseline:.6}pt|])]
+      baseAdjust :: [(Text, Text)]
+      baseAdjust = [("style", "vertical-align:" <> toText (showFFloat (Just 6) baseline "") <> "pt")]
 
 -- * Inline filter
 
@@ -95,7 +97,7 @@ renderInlineSVG
   -> T.Text           -- ^ the tex string to be rendered
   -> IO Inline
 renderInlineSVG docId mt texStr =
-  uncurry renderHandleError <$> renderTeXStr docId mt ((T.unpack . T.strip) texStr) -- TODO switch to Text instead
+  uncurry renderHandleError <$> renderTeXStr docId mt (T.strip texStr) -- TODO switch to Text instead
 
 -- | Convert inline TeX strings to SVG images
 latexFilterInline'
