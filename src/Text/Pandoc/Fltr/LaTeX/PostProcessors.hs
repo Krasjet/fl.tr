@@ -9,7 +9,8 @@ module Text.Pandoc.Fltr.LaTeX.PostProcessors (
   postProcessSVG
 ) where
 
-import qualified Data.Attoparsec.Text as A
+import qualified Data.Attoparsec.Text   as A
+import qualified Libkst.Text.Attoparsec as A
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Fltr.LaTeX.Definitions
@@ -17,7 +18,7 @@ import Text.Pandoc.Utils
 
 import qualified Data.Text as T
 
-import Control.Monad (void)
+import Control.Monad        (void)
 import Data.Attoparsec.Text (Parser)
 import Data.Maybe           (fromMaybe)
 import Data.Text            (Text)
@@ -69,9 +70,25 @@ extractSVGInfo svg = case A.parseOnly parseInfo svg of
 
 parseInfo :: Parser SVGInfo
 parseInfo = do
+  -- width
   void $ A.string widthMarker
+  w <- A.double' <* "pt"
+  void $ A.lexeme $ A.string "'"
+
+  -- height
+  void $ A.string "height='"
+  h <- A.double' <* "pt"
+  void $ A.lexeme $ A.string "'"
+
+  -- viewbox
+  void $ A.string "viewBox='"
+  void      $ A.lexeme A.double'
+  minY     <- A.lexeme A.double'
+  void      $ A.lexeme A.double'
+  viewboxH <- A.double'
+
   return SVGInfo
-    { baseline = (-8.730399) + 12.017698
-    , height = 15.382654
-    , width = 66.698045
+    { baseline = minY + viewboxH
+    , height = h
+    , width = w
     }

@@ -16,12 +16,12 @@ packages:
     version: 0.1.0
     git: https://github.com/Krasjet/libkst.git
     pantry-tree:
-      size: 935
-      sha256: c8441084251a60dcdb8fc2eb5cb22598cfab19b14fde8c29f37f8a3d9a5ef6bd
-    commit: d942e9db5fefc581369b9643d3e6897f5c45c65f
+      size: 1006
+      sha256: 3852dab3d1474b6c39d049b6e50c9cb9a8b05ef47a715bf338eab0d0a246b1b5
+    commit: 4aa6de9c947dcb09ed494d8d0c9b8d9fc2c97267
   original:
     git: https://github.com/Krasjet/libkst.git
-    commit: d942e9db5fefc581369b9643d3e6897f5c45c65f
+    commit: 4aa6de9c947dcb09ed494d8d0c9b8d9fc2c97267
 snapshots:
 - completed:
     size: 496112

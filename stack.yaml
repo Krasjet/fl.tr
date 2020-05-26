@@ -6,4 +6,4 @@ packages:
 extra-deps:
 - pandoc-utils-0.7.1
 - git: https://github.com/Krasjet/libkst.git
-  commit: d942e9db5fefc581369b9643d3e6897f5c45c65f
+  commit: 4aa6de9c947dcb09ed494d8d0c9b8d9fc2c97267
