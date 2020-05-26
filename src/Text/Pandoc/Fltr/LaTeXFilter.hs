@@ -20,32 +20,39 @@ import Control.Monad.Trans.Writer
 import Data.Text                  (Text)
 import Libkst.Html
 import Text.Pandoc.Definition
-import Text.Pandoc.Filter.Utils
 import Text.Pandoc.Utils
 
 -- * Utils
 
+-- ** Error display
+
 -- | Render errors nicely, in order to show any problems clearly, with all
 -- information intact.
 displayError :: RenderError -> Inline
-displayError (LaTeXFailure str doc) = RawInline (Format "html") e
-    where
-      e = "<pre class=\"err\">LaTeX failed.\n" <> toText str <> "\nGenerated document:\n" <> doc <> "</pre>"
-displayError (DVISVGMFailure str) = RawInline (Format "html") e
-    where
-      e = "<pre class=\"err\">dvisvgm failed.\n" <> toText str <> "</pre>"
-displayError (IOException ex) = RawInline (Format "html") e
-    where
-      e = "<pre class=\"err\">IO exception.\n" <> toText (show ex) <> "</pre>"
+displayError (LaTeXFailure err doc) = mkError $
+  "LaTeX failed.\n" <> toText err <> "\nGenerated document:\n" <> doc
+displayError (DVISVGMFailure err) = mkError $
+  "dvisvgm failed.\n" <> toText err
+displayError (IOException ex) = mkError $
+  "IO exception.\n" <> toText (show ex)
+
+-- | Make inline element from error message
+mkError
+  :: Text   -- ^ Error message
+  -> Inline -- ^ Inline error display
+mkError err = RawInline (Format "html") $
+  "<pre class=\"err\">" <> err <> "</pre>"
+
+-- ** Render TeX
 
 -- | Render a TeXStr to SVG
 renderTeXStr
   :: LaTeXFilterOptions -- ^ document id for cache dir
-  -> Preamble           -- ^ extra preambles
   -> Maybe MathType     -- ^ is math environment
   -> TeXString          -- ^ the tex string to be rendered
   -> IO (Maybe LaTeXEnv, Either RenderError SVG)
-renderTeXStr opts preamb math texStr = do
+renderTeXStr opts math texStr = do
+  let preamb = extraPreamble opts
   let (env, texDoc) = case math of
        Just InlineMath -> (Just "math", mkMathDocument InlineMath preamb texStr)
        Just DisplayMath -> (Just "displaymath", mkMathDocument DisplayMath preamb texStr)
@@ -90,46 +97,42 @@ renderHandleError opts env (Right svg) =
 -- | Render a TeXStr to inline SVG
 renderInlineSVG
   :: LaTeXFilterOptions -- ^ Render options
-  -> Preamble           -- ^ Extra preambles
   -> Maybe MathType     -- ^ is math environment
   -> TeXString          -- ^ the tex string to be rendered
   -> IO Inline
-renderInlineSVG opts preamb mt texStr =
-  uncurry (renderHandleError opts) <$> renderTeXStr opts preamb mt (T.strip texStr)
+renderInlineSVG opts mt texStr =
+  uncurry (renderHandleError opts) <$> renderTeXStr opts mt (T.strip texStr)
 
 -- | Convert inline TeX strings to SVG images
 latexFilterInline'
   :: LaTeXFilterOptions -- ^ Render options
-  -> Preamble           -- ^ Extra preambles
   -> Inline -> IO Inline
 -- math environment
-latexFilterInline' opts preamb (Math mathType texStr) =
-  renderInlineSVG opts preamb (Just mathType) texStr
+latexFilterInline' opts (Math mathType texStr) =
+  renderInlineSVG opts (Just mathType) texStr
 -- tex environment
-latexFilterInline' opts preamb (RawInline (Format "tex") texStr) =
-  renderInlineSVG opts preamb Nothing texStr
-latexFilterInline' _ _ x = return x
+latexFilterInline' opts (RawInline (Format "tex") texStr) =
+  renderInlineSVG opts Nothing texStr
+latexFilterInline' _ x = return x
 
 -- * Block filter
 
 -- | Render a TeXStr to block SVG
 renderBlockSVG
   :: LaTeXFilterOptions -- ^ Render options
-  -> Preamble           -- ^ Extra preambles
   -> TeXString          -- ^ The tex string to be rendered
   -> IO Block
-renderBlockSVG opts preamb texStr = do
-  i <- renderInlineSVG opts preamb Nothing texStr
+renderBlockSVG opts texStr = do
+  i <- renderInlineSVG opts Nothing texStr
   return $ Plain [i]
 
 -- | Convert block TeX strings to SVG images
 latexFilterBlock'
   :: LaTeXFilterOptions -- ^ Render options
-  -> Preamble           -- ^ Extra preambles
   -> Block -> IO Block
-latexFilterBlock' opts preamb (RawBlock (Format "tex") texStr) =
-  renderBlockSVG opts preamb texStr
-latexFilterBlock' _ _ x = return x
+latexFilterBlock' opts (RawBlock (Format "tex") texStr) =
+  renderBlockSVG opts texStr
+latexFilterBlock' _ x = return x
 
 -- * Preamble filter
 
@@ -142,7 +145,7 @@ extractPreamble x = return x
 preambleFilter :: PandocFilterM (Writer Text)
 preambleFilter = mkFilter extractPreamble
 
--- * The actual filter
+-- * LaTeX filter
 
 latexFilter'
   :: LaTeXFilterOptions -- ^ Filter options
@@ -150,9 +153,14 @@ latexFilter'
   -> IO Pandoc          -- ^ result
 latexFilter' opts doc = do
   -- extract preamble from document
-  let (!doc', !preamb) = runWriter $ applyFilterM preambleFilter doc
-  applyFiltersM
-    [mkFilter $ latexFilterInline' opts preamb, mkFilter $ latexFilterBlock' opts preamb] doc'
+  let (doc', !preamb) = runWriter $ applyFilterM preambleFilter doc
+      newOpts = opts { extraPreamble = extraPreamble opts <> preamb }
+
+  -- make filter
+  let ilFilter = mkFilter $ latexFilterInline' newOpts
+      blkFilter = mkFilter $ latexFilterBlock' newOpts
+
+  applyFilterM (ilFilter <> blkFilter) doc'
 
 -- | Compile any TeX commands in a document to embedded SVG images
 latexFilter

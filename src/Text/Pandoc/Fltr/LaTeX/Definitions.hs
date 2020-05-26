@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 -- Heavily modified from https://github.com/phadej/latex-svg
 -- 2020 Krasjet, 2020 Oleg Grenrus, 2015-2019 Liam O'Connor
 
@@ -6,6 +8,8 @@ module Text.Pandoc.Fltr.LaTeX.Definitions (
   -- * Definitions
   TeXString,
   TeXDocument,
+  LaTeXEnv,
+  Preamble,
   SVG,
   -- * Units
   Pixel,
@@ -37,6 +41,9 @@ type TeXString = Text
 -- | A TeX document
 type TeXDocument = Text
 
+type LaTeXEnv = Text
+type Preamble = Text
+
 -- | CSS units, for conversion between 'Point' and 'Em'
 type Pixel = Double
 -- | CSS units, not type safe
@@ -56,31 +63,35 @@ data SVGInfo
    = SVGInfo
    { baseline :: !Point
     -- ^ @pt@ from the bottom of the image to the typesetting baseline (min-y).
-   , height         :: !Point
+   , height   :: !Point
     -- ^ image height in @pt@
-   , width          :: !Point
+   , width    :: !Point
     -- ^ image width in @pt@
    }
 
 data LaTeXFilterOptions
    = LaTeXFilterOptions
-   { imageScaling :: !Double
+   { imageScaling  :: !Double
      -- ^ Scaling of font
-   , baseFontSize :: !Pixel
+   , baseFontSize  :: !Pixel
      -- ^ Base font size of web page, usually 16px, used when conversion to em unit.
-   , cacheDir     :: !(Maybe FilePath)
+   , extraPreamble :: !Preamble
+     -- ^ Extra preambles applied to every environment
+   , cacheDir      :: !(Maybe FilePath)
      -- ^ Cache directory path. 'Nothing' implies use system temp dir.
-   , tempDir      :: !(Maybe FilePath)
+   , tempDir       :: !(Maybe FilePath)
      -- ^ Temporary directory path used for compling. 'Nothing' implies use system temp dir.
-   , docId        :: !(Maybe FilePath)
+   , docId         :: !(Maybe FilePath)
      -- ^ Temp files will be organized by docId. 'Nothing' implies temp files will be written to root directory of @tempDir@.
    }
   deriving (Show, Eq, Read)
 
 instance Default LaTeXFilterOptions where
+  -- | Default for karasu
   def = LaTeXFilterOptions
     { imageScaling = 1.28
-    , baseFontSize = 16
+    , baseFontSize = 23
+    , extraPreamble = ""
     , cacheDir = Nothing
     , tempDir = Nothing
     , docId = Nothing

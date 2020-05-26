@@ -27,13 +27,9 @@ import qualified Data.Map as Map
 
 import Data.Map               (Map)
 import Data.Maybe             (fromMaybe)
-import Data.Text              (Text)
 import Libkst.Text.Parse
 import Text.Pandoc.Definition (MathType (..))
 import Text.RawString.QQ
-
-type LaTeXEnv = Text
-type Preamble = Text
 
 -- | Extract the LaTeX environment from a string
 extractEnv
@@ -97,9 +93,9 @@ tikzPreamble = defPreamble <> [r|\usepackage{tikz}
 
 -- | Make latex document for options
 mkTeXDocument
-  :: Preamble    -- ^ environment and preamble
-  -> TeXString   -- ^ tex string to be rendered
-  -> TeXDocument -- ^ output TeX document
+  :: Preamble    -- ^ Preamble
+  -> TeXString   -- ^ TeX string to be rendered
+  -> TeXDocument -- ^ Output TeX document
 mkTeXDocument preamble texString =
   [r|\nonstopmode
 \documentclass[12pt]{article}
@@ -122,13 +118,13 @@ mkMathDocument
   -> Preamble     -- ^ extra preambles
   -> TeXString    -- ^ tex string to be rendered
   -> TeXDocument  -- ^ output TeX document
-mkMathDocument InlineMath texStr preamb =
-  mkTeXDocument (defPreamble <> preamb)
+mkMathDocument InlineMath texStr ext =
+  mkTeXDocument (defPreamble <> ext)
     [r|\begin{math}|]
     <> texStr <>
     [r|\end{math}|]
-mkMathDocument DisplayMath texStr preamb =
-  mkTeXDocument (defPreamble <> preamb)
+mkMathDocument DisplayMath texStr ext =
+  mkTeXDocument (defPreamble <> ext)
     [r|\begin{displaymath}|]
     <> texStr <>
     [r|\end{displaymath}|]
