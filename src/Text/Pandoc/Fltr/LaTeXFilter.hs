@@ -5,7 +5,9 @@
 -- | A filter to transform TeX strings to svg images
 module Text.Pandoc.Fltr.LaTeXFilter (
   preambleFilter,
-  latexFilter
+  latexFilter,
+  LaTeXFilterOptions(..),
+  def,
 ) where
 
 import Text.Pandoc.Fltr.LaTeX.Definitions
@@ -17,6 +19,7 @@ import qualified Data.Text as T
 
 import Control.Monad              (when)
 import Control.Monad.Trans.Writer
+import Data.Default               (def)
 import Data.Text                  (Text)
 import Libkst.Html
 import Text.Pandoc.Definition

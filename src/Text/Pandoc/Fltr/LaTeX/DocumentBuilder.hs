@@ -104,12 +104,16 @@ mkTeXDocument preamble texString =
 \usepackage{xcolor}
 \renewcommand{\rmdefault}{zpltlf}
 \usepackage{newpxmath}
-\usepackage[scr=rsfso, cal=cm, bb=ams, frak=pxtx]{mathalfa}|]
+\usepackage[scr=rsfso, cal=cm, bb=ams, frak=pxtx]{mathalfa}
+|]
   <> preamble <>
-  [r|\begin{document}
-\begin{preview}|]
+  [r|
+\begin{document}
+\begin{preview}
+|]
   <> texString <>
-  [r|\end{preview}
+  [r|
+\end{preview}
 \end{document}|]
 
 -- | Make math latex document for options
@@ -118,13 +122,11 @@ mkMathDocument
   -> Preamble     -- ^ extra preambles
   -> TeXString    -- ^ tex string to be rendered
   -> TeXDocument  -- ^ output TeX document
-mkMathDocument InlineMath texStr ext =
-  mkTeXDocument (defPreamble <> ext)
+mkMathDocument InlineMath ext texStr = mkTeXDocument (defPreamble <> ext) $
     [r|\begin{math}|]
     <> texStr <>
     [r|\end{math}|]
-mkMathDocument DisplayMath texStr ext =
-  mkTeXDocument (defPreamble <> ext)
+mkMathDocument DisplayMath texStr ext = mkTeXDocument (defPreamble <> ext) $
     [r|\begin{displaymath}|]
     <> texStr <>
     [r|\end{displaymath}|]

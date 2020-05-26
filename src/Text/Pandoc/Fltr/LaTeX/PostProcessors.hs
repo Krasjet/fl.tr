@@ -88,7 +88,7 @@ parseInfo = do
   viewboxH <- A.double'
 
   return SVGInfo
-    { baseline = minY + viewboxH
+    { baseline = -(minY + viewboxH)
     , height = h
     , width = w
     }
