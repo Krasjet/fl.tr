@@ -170,6 +170,31 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
 |]
 
+preambleTest2 :: Text
+preambleTest2 = T.strip [r|
+Test2
+=====
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+```
+\newcommand*{\N}{\ensuremath{\mathbb{N}}}
+\newcommand*{\Z}{\ensuremath{\mathbb{Z}}}
+```
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+
+```
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator*{\argmax}{arg\,max}
+```
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+```
+\newcommand*{\Q}{\ensuremath{\mathbb{Q}}}
+```
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+|]
+
 preambleExpect :: Text
 preambleExpect = T.strip [r|
 \newcommand*{\N}{\ensuremath{\mathbb{N}}}
@@ -186,6 +211,28 @@ Test
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+
+    \newcommand*{\Q}{\ensuremath{\mathbb{Q}}}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+|]
+
+preambleDocExpect2 :: Text
+preambleDocExpect2 = T.strip [r|
+Test2
+=====
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+
+    \newcommand*{\N}{\ensuremath{\mathbb{N}}}
+    \newcommand*{\Z}{\ensuremath{\mathbb{Z}}}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+
+    \DeclareMathOperator{\lcm}{lcm}
+    \DeclareMathOperator*{\argmax}{arg\,max}
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
 
@@ -214,11 +261,20 @@ preambleSpec = parallel $ do
         Left e -> error $ "check preamble doc" <> show e
         Right d -> d
 
+      pDoc2 :: Pandoc
+      pDoc2 = case P.runPure $ P.readMarkdown ropts preambleTest2 of
+        Left e -> error $ "check preamble doc" <> show e
+        Right d -> d
+
 
   describe "preamble filter" $ do
     let (pDoc', p) = runWriter (applyFilterM f pDoc)
+    let (pDoc2', p2) = runWriter (applyFilterM f pDoc2)
     it "extracts preamble from document" $
       T.strip p `shouldBe` preambleExpect
+
+    it "extracts nothing if document doesn't have preamble" $
+      T.strip p2 `shouldBe` ""
 
     it "clean up left over code block" $ do
       let processed :: Text
@@ -226,6 +282,13 @@ preambleSpec = parallel $ do
             Left e -> error $ "check preamble doc" <> show e
             Right d -> d
       T.strip processed `shouldBe` preambleDocExpect
+
+    it "doesn't touch anything if document doesn't have preamble" $ do
+      let processed :: Text
+          processed = case P.runPure $ P.writeMarkdown wopts pDoc2' of
+            Left e -> error $ "check preamble doc" <> show e
+            Right d -> d
+      T.strip processed `shouldBe` preambleDocExpect2
 
 
 main :: IO ()
