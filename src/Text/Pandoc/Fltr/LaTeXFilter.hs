@@ -1,10 +1,11 @@
+{-# LANGUAGE BangPatterns      #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TupleSections     #-}
 
 -- | A filter to transform TeX strings to svg images
 module Text.Pandoc.Fltr.LaTeXFilter (
-  latexFilterInline,
-  latexFilterBlock,
+  preambleFilter,
+  latexFilter
 ) where
 
 import Text.Pandoc.Fltr.LaTeX.Definitions
@@ -14,7 +15,9 @@ import Text.Pandoc.Fltr.LaTeX.Renderer
 
 import qualified Data.Text as T
 
-import Data.Text                (Text)
+import Control.Monad              (when)
+import Control.Monad.Trans.Writer
+import Data.Text                  (Text)
 import Libkst.Html
 import Text.Pandoc.Definition
 import Text.Pandoc.Filter.Utils
@@ -128,16 +131,31 @@ latexFilterBlock' opts preamb (RawBlock (Format "tex") texStr) =
   renderBlockSVG opts preamb texStr
 latexFilterBlock' _ _ x = return x
 
--- * partial -> complete filter
+-- * Preamble filter
 
-latexFilterInline
-  :: LaTeXFilterOptions
-  -> Preamble
-  -> PandocFilterM IO
-latexFilterInline opts prem = mkFilter $ latexFilterInline' opts prem
+extractPreamble :: Block -> Writer Text Block
+extractPreamble (CodeBlock (_,cls,_) preamb) = do
+  when ("preamble" `elem` cls) $ tell $ preamb <> "\n"
+  return Null
+extractPreamble x = return x
 
-latexFilterBlock
-  :: LaTeXFilterOptions
-  -> Preamble
-  -> PandocFilterM IO
-latexFilterBlock opts prem = mkFilter $ latexFilterBlock' opts prem
+preambleFilter :: PandocFilterM (Writer Text)
+preambleFilter = mkFilter extractPreamble
+
+-- * The actual filter
+
+latexFilter'
+  :: LaTeXFilterOptions -- ^ Filter options
+  -> Pandoc             -- ^ Pandoc document
+  -> IO Pandoc          -- ^ result
+latexFilter' opts doc = do
+  -- extract preamble from document
+  let (!doc', !preamb) = runWriter $ applyFilterM preambleFilter doc
+  applyFiltersM
+    [mkFilter $ latexFilterInline' opts preamb, mkFilter $ latexFilterBlock' opts preamb] doc'
+
+-- | Compile any TeX commands in a document to embedded SVG images
+latexFilter
+  :: LaTeXFilterOptions -- ^ Filter options
+  -> PandocFilterM IO   -- ^ Final filter
+latexFilter = mkFilter . latexFilter'

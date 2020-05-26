@@ -10,11 +10,15 @@ import Text.Pandoc.Fltr.BreakCodeFilter
 import Text.Pandoc.Fltr.LaTeX.Definitions
 import Text.Pandoc.Fltr.LaTeX.DocumentBuilder
 import Text.Pandoc.Fltr.LaTeX.PostProcessors
+import Text.Pandoc.Fltr.LaTeXFilter
 
+import qualified Text.Pandoc as P
 import qualified Data.Text.IO as TIO
+import qualified Data.Text as T
 
 import Data.Default
 import Data.Text           (Text)
+import Control.Monad.Trans.Writer
 import System.Directory
 import System.FilePath
 import Text.Pandoc.Builder
@@ -79,7 +83,6 @@ failEnv =
 envParserSpec :: Spec
 envParserSpec = parallel $
   describe "extractEnv" $ do
-    runIO $ putStrLn $ toString aliEnv
     it "extracts environment correctly" $
       extractEnv aliEnv `shouldBe` Just "align*"
     it "fails on no env " $ do
@@ -141,6 +144,81 @@ svgSpec = parallel $ do
     it "obtains attributes correctly" $
       getImgAttr 16 expected `shouldBe` expectedAttr
 
+-- * Preamble filter
+
+preambleTest :: Text
+preambleTest = T.strip [r|
+Test
+====
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+```preamble
+\newcommand*{\N}{\ensuremath{\mathbb{N}}}
+\newcommand*{\Z}{\ensuremath{\mathbb{Z}}}
+```
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+
+```preamble
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator*{\argmax}{arg\,max}
+```
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+|]
+
+preambleExpect :: Text
+preambleExpect = T.strip [r|
+\newcommand*{\N}{\ensuremath{\mathbb{N}}}
+\newcommand*{\Z}{\ensuremath{\mathbb{Z}}}
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator*{\argmax}{arg\,max}
+|]
+
+preambleDocExpect :: Text
+preambleDocExpect = T.strip [r|
+Test
+====
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+|]
+
+preambleSpec :: Spec
+preambleSpec = parallel $ do
+  let f :: PandocFilterM (Writer Text)
+      f = mkFilter preambleFilter
+
+      ropts :: P.ReaderOptions
+      ropts = def
+        { P.readerExtensions = P.pandocExtensions }
+
+      wopts :: P.WriterOptions
+      wopts = def
+        { P.writerExtensions = P.pandocExtensions
+        , P.writerWrapText = P.WrapNone
+        }
+
+      pDoc :: Pandoc
+      pDoc = case P.runPure $ P.readMarkdown ropts preambleTest of
+        Left e -> error $ "check preamble doc" <> show e
+        Right d -> d
+
+
+  describe "preamble filter" $ do
+    let (pDoc', p) = runWriter (applyFilterM f pDoc)
+    it "extracts preamble from document" $
+      T.strip p `shouldBe` preambleExpect
+
+    it "clean up left over code block" $ do
+      let processed :: Text
+          processed = case P.runPure $ P.writeMarkdown wopts pDoc' of
+            Left e -> error $ "check preamble doc" <> show e
+            Right d -> d
+      T.strip processed `shouldBe` preambleDocExpect
+
 
 main :: IO ()
 main = do
@@ -148,9 +226,11 @@ main = do
   testEnvParse <- testSpec "Env parser" envParserSpec
   testOpts <- testSpec "LaTeX filter options" optsSpec
   testSVGProc <- testSpec "SVG Processing" svgSpec
+  testPreamble <- testSpec "Preamble filter" preambleSpec
   defaultMain $ testGroup "Tests"
     [ testBreakCode
     , testEnvParse
     , testOpts
     , testSVGProc
+    , testPreamble
     ]
