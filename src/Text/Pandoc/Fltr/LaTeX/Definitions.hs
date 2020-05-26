@@ -57,6 +57,7 @@ pt2em
   -> Point  -- ^ size in @pt@
   -> Em     -- ^ size in @em@
 pt2em base pt = pt / (0.75 * base)
+{-# INLINE pt2em #-}
 
 -- | Information needed to adjust an SVG image for embedding in HTML
 data SVGInfo
