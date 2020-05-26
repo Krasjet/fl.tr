@@ -16,7 +16,6 @@ import qualified Text.Pandoc as P
 import qualified Data.Text.IO as TIO
 import qualified Data.Text as T
 
-import Data.Default
 import Data.Text           (Text)
 import Control.Monad.Trans.Writer
 import System.Directory
@@ -130,7 +129,7 @@ optsSpec = parallel $ do
 
 expectedAttr :: Attr
 expectedAttr = nullAttr `addKVPair`
-  ("style", "vertical-align:0.273942em;height:1.281888em;width:5.558170em;")
+  ("style", "vertical-align:-0.273942em;height:1.281888em;width:5.558170em;")
 
 svgSpec :: Spec
 svgSpec = parallel $ do

@@ -1,72 +1,69 @@
-name:                fl-tr
-version:             0.1.0
-synopsis:
-  Some Pandoc filters for personal use.
-description:
-  A work in progress.
-license:             MIT
-license-file:        LICENSE
-author:              Krasjet
-maintainer:          Krasjet
-copyright:           Copyright (c) 2020 Krasjet
-homepage:            https://github.com/Krasjet/fl.tr
-category:            Text
-
-build-type:          Simple
-cabal-version:       2.0
+name:          fl-tr
+version:       0.1.0
+synopsis:      Some Pandoc filters for personal use.
+description:   A work in progress.
+license:       MIT
+license-file:  LICENSE
+author:        Krasjet
+maintainer:    Krasjet
+copyright:     Copyright (c) 2020 Krasjet
+homepage:      https://github.com/Krasjet/fl.tr
+category:      Text
+build-type:    Simple
+cabal-version: 2.0
 
 library
-  hs-source-dirs:      src
-  default-language:    Haskell2010
-  ghc-options:         -Wall
+  hs-source-dirs:   src
+  default-language: Haskell2010
+  ghc-options:      -Wall
   exposed-modules:
-      Text.Pandoc.Fltr.DashFilter
-      Text.Pandoc.Fltr.KernFilter
-      Text.Pandoc.Fltr.LaTeXFilter
-      Text.Pandoc.Fltr.LinkFilter
-      Text.Pandoc.Fltr.SlashFilter
-      Text.Pandoc.Fltr.BreakCodeFilter
-      Text.Pandoc.Fltr.SmcpFilter
-      Text.Pandoc.Fltr.LaTeX.Definitions
-      Text.Pandoc.Fltr.LaTeX.DocumentBuilder
-      Text.Pandoc.Fltr.LaTeX.PostProcessors
-      Text.Pandoc.Fltr.LaTeX.Renderer
+    Text.Pandoc.Fltr.BreakCodeFilter
+    Text.Pandoc.Fltr.DashFilter
+    Text.Pandoc.Fltr.KernFilter
+    Text.Pandoc.Fltr.LaTeX.Definitions
+    Text.Pandoc.Fltr.LaTeX.DocumentBuilder
+    Text.Pandoc.Fltr.LaTeX.PostProcessors
+    Text.Pandoc.Fltr.LaTeX.Renderer
+    Text.Pandoc.Fltr.LaTeXFilter
+    Text.Pandoc.Fltr.LinkFilter
+    Text.Pandoc.Fltr.SlashFilter
+    Text.Pandoc.Fltr.SmcpFilter
+
   build-depends:
-      base               >=4.10 && <4.15
-    , pandoc-utils      ^>=0.7.1
-    , libkst
+      attoparsec        ^>=0.13
+    , base               >=4.10  && <4.15
     , bytestring        ^>=0.10
     , containers        ^>=0.6
-    , deepseq           ^>=1.4
     , data-default      ^>=0.7
+    , deepseq           ^>=1.4
     , directory         ^>=1.3
     , filepath          ^>=1.4
+    , libkst
     , pandoc-types      ^>=1.20
-    , attoparsec        ^>=0.13
-    , parsec            ^>=3.1.10
-    , split             ^>=0.2.3
+    , pandoc-utils      ^>=0.7.1
     , raw-strings-qq    ^>=1.1
+    , split             ^>=0.2.3
+    , template-haskell   >=2.14  && <3
     , text              ^>=1.2
-    , template-haskell   >=2.14 && <3
     , transformers      ^>=0.5
 
 test-suite filter-test
-  hs-source-dirs:      test
-  default-language:    Haskell2010
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall
-  type:                exitcode-stdio-1.0
-  main-is:             Spec.hs
+  hs-source-dirs:   test
+  default-language: Haskell2010
+  ghc-options:      -threaded -rtsopts -with-rtsopts=-N -Wall
+  type:             exitcode-stdio-1.0
+  main-is:          Spec.hs
   build-depends:
-      base               >=4.10 && <4.15
+      base             >=4.10 && <4.15
+    , data-default    ^>=0.7
+    , directory       ^>=1.3
+    , filepath        ^>=1.4
     , fl-tr
+    , pandoc          ^>=2.9
+    , pandoc-types    ^>=1.20
     , pandoc-utils
-    , pandoc-types      ^>=1.20
-    , pandoc            ^>=2.9
-    , tasty             ^>=1.2
-    , tasty-hspec       ^>=1.1
-    , raw-strings-qq    ^>=1.1
-    , text              ^>=1.2
-    , data-default      ^>=0.7
-    , directory         ^>=1.3
-    , filepath          ^>=1.4
-    , transformers      ^>=0.5
+    , raw-strings-qq  ^>=1.1
+    , tasty           ^>=1.2
+    , tasty-hspec     ^>=1.1
+    , text            ^>=1.2
+    , transformers    ^>=0.5
