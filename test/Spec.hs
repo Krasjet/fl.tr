@@ -163,6 +163,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra 
 ```
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+```
+\newcommand*{\Q}{\ensuremath{\mathbb{Q}}}
+```
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
 |]
 
 preambleExpect :: Text
@@ -181,6 +186,10 @@ Test
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
+
+    \newcommand*{\Q}{\ensuremath{\mathbb{Q}}}
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra augue at suscipit. Curabitur varius velit ut turpis auctor commodo. Donec porta et tortor aliquet tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque porttitor sem eu turpis faucibus malesuada. Donec imperdiet eros eu sapien ornare lacinia. Morbi posuere, quam vel condimentum molestie, magna mi auctor est, efficitur pharetra nulla ex eget felis. Fusce quis nisi dui. Sed id ante ipsum. Nulla facilisi. Aliquam euismod neque eget blandit congue.
 |]

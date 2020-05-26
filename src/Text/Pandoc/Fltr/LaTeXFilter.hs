@@ -140,9 +140,11 @@ latexFilterBlock' _ x = return x
 -- * Preamble filter
 
 extractPreamble :: Block -> Writer Text Block
-extractPreamble (CodeBlock (_,cls,_) preamb) = do
-  when ("preamble" `elem` cls) $ tell $ preamb <> "\n"
-  return Null
+extractPreamble blk@(CodeBlock (_,cls,_) preamb)
+  | "preamble" `elem` cls = do
+       when ("preamble" `elem` cls) $ tell $ preamb <> "\n"
+       return Null
+  | otherwise = return blk
 extractPreamble x = return x
 
 preambleFilter :: PandocFilterM (Writer Text)
