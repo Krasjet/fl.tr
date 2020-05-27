@@ -1,6 +1,6 @@
 .PHONY: test build ghci ghci-test ghcid
 
-test:
+test: codegen
 	@stack test
 
 build: codegen
