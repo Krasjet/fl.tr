@@ -243,7 +243,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean semper pharetra 
 |]
 
 preambleSpec :: Spec
-preambleSpec = parallel $ do
+preambleSpec = do
   let f :: PandocFilterM (Writer Text)
       f = mkFilter preambleFilter
 
@@ -303,7 +303,7 @@ pygKVPairs :: [(Text,Text)]
 pygKVPairs = [("style", "width: 500px;"), ("title", "C++")]
 
 pygmentsSpec :: Spec
-pygmentsSpec = parallel $ do
+pygmentsSpec = do
   input <- runIO $ TIO.readFile $ "test" </> "data" </> "pyginput" <.> "html"
   expected <- runIO $ TIO.readFile $ "test" </> "data" </> "expectPyg" <.> "html"
   describe "addAttrs" $ do

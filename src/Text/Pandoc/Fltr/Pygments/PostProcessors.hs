@@ -31,6 +31,8 @@ addAttrsToTag id' cls pairs tag = "<" <> tag <> idStr <> clsStr <> pairsStr <> "
       | T.null id' = ""
       | otherwise = " id=\"" <> id' <> "\""
     clsStr
-      | T.null clsStr = ""
+      | null cls = ""
       | otherwise = " class=\"" <> T.intercalate " " cls <> "\""
-    pairsStr = T.concat $ map (\(k,v) -> " " <> k <> "=\"" <> v <> "\"") pairs
+    pairsStr
+      | null pairs = ""
+      | otherwise = T.concat $ map (\(k,v) -> " " <> k <> "=\"" <> v <> "\"") pairs
