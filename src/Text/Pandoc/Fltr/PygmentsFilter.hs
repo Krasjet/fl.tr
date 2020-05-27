@@ -6,6 +6,8 @@ module Text.Pandoc.Fltr.PygmentsFilter (
   pygmentsFilter
 ) where
 
+import qualified Data.Text as T
+
 import Data.Map                         ((!?))
 import Data.Maybe                       (mapMaybe)
 import System.Process (readProcess)
@@ -22,7 +24,11 @@ highlightCode b@(CodeBlock (id', cls, kvpairs) code) =
     go langMaps
       | null langMaps = return b
       | otherwise = do
-        html <- readProcess "pygmentize" ["-l", getAlias langMaps,  "-f", "html"] $ toString code
+        html <- readProcess "pygmentize"
+          [ "-l", getAlias langMaps
+          , "-O", "wrapcode,cssclass=" <> "sourceCode " <> fromText (T.intercalate " " cls)
+          , "-f", "html"
+          ] $ toString code
         -- TODO add id and kvpairs to result
         return $ RawBlock "html" $ fromString html
 
