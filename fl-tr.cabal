@@ -25,9 +25,13 @@ library
     Text.Pandoc.Fltr.LaTeX.PostProcessors
     Text.Pandoc.Fltr.LaTeX.Renderer
     Text.Pandoc.Fltr.LaTeXFilter
+    Text.Pandoc.Fltr.PygmentsFilter
+    Text.Pandoc.Fltr.Pygments.Lexers
     Text.Pandoc.Fltr.LinkFilter
     Text.Pandoc.Fltr.SlashFilter
     Text.Pandoc.Fltr.SmcpFilter
+  autogen-modules:
+    Text.Pandoc.Fltr.Pygments.Lexers
 
   build-depends:
       attoparsec        ^>=0.13
@@ -37,6 +41,7 @@ library
     , data-default      ^>=0.7
     , deepseq           ^>=1.4
     , directory         ^>=1.3
+    , process           ^>=1.6
     , filepath          ^>=1.4
     , libkst
     , pandoc-types      ^>=1.20

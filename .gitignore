@@ -1,2 +1,4 @@
 .stack-work/
 dist-newstyle
+src/Text/Pandoc/Fltr/Pygments/_mapping.py
+src/Text/Pandoc/Fltr/Pygments/Lexers.hs

@@ -1,21 +1,28 @@
 .PHONY: test build ghci ghci-test ghcid
 
-test:
+test: codegen
 	@stack test
 
-build:
+build: codegen
 	@stack build
 
-ghci:
+ghci: codegen
 	@stack ghci
 
-ghci-test:
+ghci-test: codegen
 	@stack ghci --test
 
-ghcid:
+ghcid: codegen
 	@ghcid \
 		--command "stack ghci --test" \
 		--test "main"
 
-doc:
+doc: codegen
 	@stack haddock --open fl-tr
+
+codegen:
+	$(MAKE) -C ./src/Text/Pandoc/Fltr/Pygments/
+
+clean:
+	@stack clean
+	$(MAKE) -C ./src/Text/Pandoc/Fltr/Pygments/ clean
