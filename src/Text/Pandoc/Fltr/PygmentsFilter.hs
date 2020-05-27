@@ -6,14 +6,13 @@ module Text.Pandoc.Fltr.PygmentsFilter (
   pygmentsFilter
 ) where
 
-import qualified Data.Text as T
-
-import Data.Map                         ((!?))
-import Data.Maybe                       (mapMaybe)
-import System.Process (readProcess)
-import Data.Text                        (Text)
+import Data.Map                                 ((!?))
+import Data.Maybe                               (mapMaybe)
+import Data.Text                                (Text)
+import System.Process                           (readProcess)
 import Text.Pandoc.Definition
 import Text.Pandoc.Fltr.Pygments.Lexers
+import Text.Pandoc.Fltr.Pygments.PostProcessors
 import Text.Pandoc.Utils
 
 highlightCode :: Block -> IO Block
@@ -26,11 +25,11 @@ highlightCode b@(CodeBlock (id', cls, kvpairs) code) =
       | otherwise = do
         html <- readProcess "pygmentize"
           [ "-l", getAlias langMaps
-          , "-O", "wrapcode,cssclass=" <> "sourceCode " <> fromText (T.intercalate " " cls)
+          , "-O", "wrapcode,cssclass="
           , "-f", "html"
           ] $ toString code
-        -- TODO add id and kvpairs to result
-        return $ RawBlock "html" $ fromString html
+        return $ RawBlock "html" $!
+          addAttrs id' ("sourceCode":cls) kvpairs $ fromString html
 
     getAlias :: [(Text,Text)] -> String
     getAlias = toString . fst. head

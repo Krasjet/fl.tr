@@ -11,6 +11,7 @@ import Text.Pandoc.Fltr.LaTeX.Definitions
 import Text.Pandoc.Fltr.LaTeX.DocumentBuilder
 import Text.Pandoc.Fltr.LaTeX.PostProcessors
 import Text.Pandoc.Fltr.LaTeXFilter
+import Text.Pandoc.Fltr.Pygments.PostProcessors
 
 import qualified Text.Pandoc as P
 import qualified Data.Text.IO as TIO
@@ -290,6 +291,27 @@ preambleSpec = parallel $ do
             Right d -> d
       T.strip processed `shouldBe` preambleDocExpect2
 
+-- * Pygments
+
+pygId :: Text
+pygId = "testid"
+
+pygCls :: [Text]
+pygCls = ["sourceCode", "test", "class"]
+
+pygKVPairs :: [(Text,Text)]
+pygKVPairs = [("style", "width: 500px;"), ("title", "C++")]
+
+pygmentsSpec :: Spec
+pygmentsSpec = parallel $ do
+  input <- runIO $ TIO.readFile $ "test" </> "data" </> "pyginput" <.> "html"
+  expected <- runIO $ TIO.readFile $ "test" </> "data" </> "expectPyg" <.> "html"
+  describe "addAttrs" $ do
+    it "add corresponding attributes to highlighted code" $
+      addAttrs pygId pygCls pygKVPairs input `shouldBe` expected
+
+    it "doesn't touch anything if no attributes provided" $
+      addAttrs "" [] [] input `shouldBe` input
 
 main :: IO ()
 main = do
@@ -298,10 +320,12 @@ main = do
   testOpts <- testSpec "LaTeX filter options" optsSpec
   testSVGProc <- testSpec "SVG Processing" svgSpec
   testPreamble <- testSpec "Preamble filter" preambleSpec
+  testPygments <- testSpec "Pygment postprocessor" pygmentsSpec
   defaultMain $ testGroup "Tests"
     [ testBreakCode
     , testEnvParse
     , testOpts
     , testSVGProc
     , testPreamble
+    , testPygments
     ]

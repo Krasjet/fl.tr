@@ -27,6 +27,7 @@ library
     Text.Pandoc.Fltr.LaTeXFilter
     Text.Pandoc.Fltr.PygmentsFilter
     Text.Pandoc.Fltr.Pygments.Lexers
+    Text.Pandoc.Fltr.Pygments.PostProcessors
     Text.Pandoc.Fltr.LinkFilter
     Text.Pandoc.Fltr.SlashFilter
     Text.Pandoc.Fltr.SmcpFilter
