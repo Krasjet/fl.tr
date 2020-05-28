@@ -27,10 +27,11 @@ highlightCode b@(CodeBlock (id', cls, kvpairs) code) =
     go langMaps
       | null langMaps = return b
       | otherwise = do
+        let hlLines = maybe "" (\c -> ",hl_lines=\"" <> c <> "\"") $ lookup "hl_lines" kvpairs
         res <- runExceptT $ tryIODeep $
                   readProcess "pygmentize"
                     [ "-l", getAlias langMaps
-                    , "-O", "wrapcode,cssclass="
+                    , "-O", "wrapcode,cssclass=" <> toString hlLines
                     , "-f", "html"
                     ] $ toString code
         case res of
