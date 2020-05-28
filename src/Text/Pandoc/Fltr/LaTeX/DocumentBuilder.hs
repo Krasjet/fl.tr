@@ -126,7 +126,7 @@ mkMathDocument InlineMath ext texStr = mkTeXDocument (defPreamble <> ext) $
     [r|\begin{math}|]
     <> texStr <>
     [r|\end{math}|]
-mkMathDocument DisplayMath texStr ext = mkTeXDocument (defPreamble <> ext) $
+mkMathDocument DisplayMath ext texStr = mkTeXDocument (defPreamble <> ext) $
     [r|\begin{displaymath}|]
     <> texStr <>
     [r|\end{displaymath}|]
