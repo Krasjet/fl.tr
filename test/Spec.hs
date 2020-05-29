@@ -7,19 +7,20 @@ import Test.Tasty
 import Test.Tasty.Hspec
 
 import Text.Pandoc.Fltr.BreakCodeFilter
+import Text.Pandoc.Fltr.ImageFilter
 import Text.Pandoc.Fltr.LaTeX.Definitions
 import Text.Pandoc.Fltr.LaTeX.DocumentBuilder
 import Text.Pandoc.Fltr.LaTeX.PostProcessors
-import Text.Pandoc.Fltr.ParaFilter
 import Text.Pandoc.Fltr.LaTeXFilter
+import Text.Pandoc.Fltr.ParaFilter
 import Text.Pandoc.Fltr.Pygments.PostProcessors
 
-import qualified Text.Pandoc as P
+import qualified Data.Text    as T
 import qualified Data.Text.IO as TIO
-import qualified Data.Text as T
+import qualified Text.Pandoc  as P
 
-import Data.Text           (Text)
 import Control.Monad.Trans.Writer
+import Data.Text                  (Text)
 import System.Directory
 import System.FilePath
 import Text.Pandoc.Builder
@@ -260,12 +261,12 @@ preambleSpec = parallel $ do
 
       pDoc :: Pandoc
       pDoc = case P.runPure $ P.readMarkdown ropts preambleTest of
-        Left e -> error $ "check preamble doc" <> show e
+        Left e  -> error $ "check preamble doc" <> show e
         Right d -> d
 
       pDoc2 :: Pandoc
       pDoc2 = case P.runPure $ P.readMarkdown ropts preambleTest2 of
-        Left e -> error $ "check preamble doc" <> show e
+        Left e  -> error $ "check preamble doc" <> show e
         Right d -> d
 
 
@@ -281,14 +282,14 @@ preambleSpec = parallel $ do
     it "clean up left over code block" $ do
       let processed :: Text
           processed = case P.runPure $ P.writeMarkdown wopts pDoc' of
-            Left e -> error $ "check preamble doc" <> show e
+            Left e  -> error $ "check preamble doc" <> show e
             Right d -> d
       T.strip processed `shouldBe` preambleDocExpect
 
     it "doesn't touch anything if document doesn't have preamble" $ do
       let processed :: Text
           processed = case P.runPure $ P.writeMarkdown wopts pDoc2' of
-            Left e -> error $ "check preamble doc" <> show e
+            Left e  -> error $ "check preamble doc" <> show e
             Right d -> d
       T.strip processed `shouldBe` preambleDocExpect2
 
@@ -338,6 +339,100 @@ paraSpec = parallel $
     it "only removes top level plain block" $
       applyFilter paraFilter paraDoc `shouldBe` expectParaDoc
 
+-- * Image filter
+
+imageDoc1 :: Text
+imageDoc1 = T.strip [r|
+![](image1.png)
+|]
+imageDoc2 :: Text
+imageDoc2 = T.strip [r|
+[![](image2.png)](image2.png){.test-class}
+|]
+
+imageDoc3 :: Text
+imageDoc3 = T.strip [r|
+![](image3.png){.linked}
+|]
+
+imageDoc4 :: Text
+imageDoc4 = T.strip [r|
+![caption](image4.png)
+|]
+
+imageExpect1 :: Text
+imageExpect1 = T.strip [r|
+<div class="figure">
+<p><img src="image1.png" /></p>
+</div>
+|]
+
+imageExpect2 :: Text
+imageExpect2 = T.strip [r|
+<div class="figure">
+<p><a href="image2.png" class="test-class"><img src="image2.png" /></a></p>
+</div>
+|]
+
+imageExpect3 :: Text
+imageExpect3 = T.strip [r|
+<div class="figure">
+<p><a href="image3.png" class="linked"><img src="image3.png" class="linked" /></a></p>
+</div>
+|]
+
+imageExpect4 :: Text
+imageExpect4 = T.strip [r|
+<figure>
+<img src="image4.png" alt="" /><figcaption>caption</figcaption>
+</figure>
+|]
+
+-- | convert markdown to pandoc
+readImageDoc :: Text -> Pandoc
+readImageDoc pDoc =
+  case P.runPure $ P.readMarkdown ropts pDoc of
+        Left e  -> error $ "check image doc" <> show e
+        Right d -> d
+  where
+    ropts = def
+      { P.readerExtensions = P.pandocExtensions }
+
+-- | convert markdown to pandoc
+writeImageDoc :: Pandoc -> Text
+writeImageDoc pDoc =
+  case P.runPure $ P.writeHtml5String wopts pDoc of
+    Left e  -> error $ "check image doc" <> show e
+    Right d -> d
+  where
+    wopts = def
+      { P.writerExtensions = P.pandocExtensions
+      }
+
+imageSpec :: Spec
+imageSpec = parallel $ do
+  let pDoc1 = readImageDoc imageDoc1
+      pDoc2 = readImageDoc imageDoc2
+      pDoc3 = readImageDoc imageDoc3
+      pDoc4 = readImageDoc imageDoc4
+
+  describe "image filter" $ do
+    let pDoc1' = applyFilter imageFilter pDoc1
+        pDoc2' = applyFilter imageFilter pDoc2
+        pDoc3' = applyFilter imageFilter pDoc3
+        pDoc4' = applyFilter imageFilter pDoc4
+    it "wraps images in div" $
+      T.strip (writeImageDoc pDoc1') `shouldBe` imageExpect1
+
+    it "process linked images" $
+      T.strip (writeImageDoc pDoc2') `shouldBe` imageExpect2
+
+    it "add links to linked images" $
+      T.strip (writeImageDoc pDoc3') `shouldBe` imageExpect3
+
+    it "does not touch figures" $
+      T.strip (writeImageDoc pDoc4') `shouldBe` imageExpect4
+
 main :: IO ()
 main = do
   testBreakCode <- testSpec "Break code filter" breakCodeSpec
@@ -347,6 +442,7 @@ main = do
   testPreamble <- testSpec "Preamble filter" preambleSpec
   testPygments <- testSpec "Pygment postprocessor" pygmentsSpec
   testPara <- testSpec "Paragraph wrapper" paraSpec
+  testImage <- testSpec "Image filter" imageSpec
   defaultMain $ testGroup "Tests"
     [ testBreakCode
     , testEnvParse
@@ -355,4 +451,5 @@ main = do
     , testPreamble
     , testPygments
     , testPara
+    , testImage
     ]

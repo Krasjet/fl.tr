@@ -32,6 +32,7 @@ library
     Text.Pandoc.Fltr.SlashFilter
     Text.Pandoc.Fltr.SmcpFilter
     Text.Pandoc.Fltr.ParaFilter
+    Text.Pandoc.Fltr.ImageFilter
   autogen-modules:
     Text.Pandoc.Fltr.Pygments.Lexers
 
