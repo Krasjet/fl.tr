@@ -369,7 +369,7 @@ imageExpect1 = T.strip [r|
 
 imageExpect2 :: Text
 imageExpect2 = T.strip [r|
-<div class="figure">
+<div class="figure test-class">
 <p><a href="image2.png" class="test-class"><img src="image2.png" /></a></p>
 </div>
 |]
@@ -377,7 +377,7 @@ imageExpect2 = T.strip [r|
 imageExpect3 :: Text
 imageExpect3 = T.strip [r|
 <div class="figure">
-<p><a href="image3.png" class="linked"><img src="image3.png" class="linked" /></a></p>
+<p><a href="image3.png"><img src="image3.png" class="linked" /></a></p>
 </div>
 |]
 
