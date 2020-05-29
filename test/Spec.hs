@@ -10,6 +10,7 @@ import Text.Pandoc.Fltr.BreakCodeFilter
 import Text.Pandoc.Fltr.LaTeX.Definitions
 import Text.Pandoc.Fltr.LaTeX.DocumentBuilder
 import Text.Pandoc.Fltr.LaTeX.PostProcessors
+import Text.Pandoc.Fltr.ParaFilter
 import Text.Pandoc.Fltr.LaTeXFilter
 import Text.Pandoc.Fltr.Pygments.PostProcessors
 
@@ -313,6 +314,30 @@ pygmentsSpec = parallel $ do
     it "doesn't touch anything if no attributes provided" $
       addAttrs "" [] [] input `shouldBe` input
 
+-- * Para filter
+
+paraDoc :: Pandoc
+paraDoc = doc $
+  para (str "para") <>
+  para (str "para2") <>
+  plain (str "plain1") <>
+  plain (code "code" <> str "plain2") <>
+  bulletList [plain "plain-bullet", para "para-bullet"]
+
+expectParaDoc :: Pandoc
+expectParaDoc = doc $
+  para (str "para") <>
+  para (str "para2") <>
+  para (str "plain1") <>
+  para (code "code" <> str "plain2") <>
+  bulletList [plain "plain-bullet", para "para-bullet"]
+
+paraSpec :: Spec
+paraSpec = parallel $
+  describe "paraFilter" $
+    it "only removes top level plain block" $
+      applyFilter paraFilter paraDoc `shouldBe` expectParaDoc
+
 main :: IO ()
 main = do
   testBreakCode <- testSpec "Break code filter" breakCodeSpec
@@ -321,6 +346,7 @@ main = do
   testSVGProc <- testSpec "SVG Processing" svgSpec
   testPreamble <- testSpec "Preamble filter" preambleSpec
   testPygments <- testSpec "Pygment postprocessor" pygmentsSpec
+  testPara <- testSpec "Paragraph wrapper" paraSpec
   defaultMain $ testGroup "Tests"
     [ testBreakCode
     , testEnvParse
@@ -328,4 +354,5 @@ main = do
     , testSVGProc
     , testPreamble
     , testPygments
+    , testPara
     ]
