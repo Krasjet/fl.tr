@@ -1,14 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 
--- | A pandoc filter to transform capital letters into small caps
-module Text.Pandoc.Fltr.SmcpFilter (smcpFilter) where
+-- | A pandoc filter to transform capital letters into small caps, and
+-- reverting smallcaps to capital letters.
+module Text.Pandoc.Fltr.SmcpFilter (
+  smcpFilter,
+  smcpFilterLegacy
+) where
 
 import Text.Pandoc.Filter.Utils
 
 import qualified Data.Set  as Set
 import qualified Data.Text as T
 
-import Data.Char              (isUpper)
+import Data.Char              (isDigit, isUpper)
 import Data.Map               (update)
 import Data.Set               (Set)
 import Data.Text              (Text)
@@ -22,13 +26,16 @@ c2scChars :: Set Char
 c2scChars = Set.fromList ['&', '[', ']', '(', ')', '{', '}']
 
 -- | Check if a character should be smcp
--- (more precisely the '.cap' class)
 isSmcp :: Char -> Bool
 isSmcp c = isUpper c || c `Set.member` smcpChars
 
 -- | Check if a character should be c2sc
 isc2sc :: Char -> Bool
 isc2sc c = c `Set.member` c2scChars
+
+-- | Check if a character should be capital
+isCap :: Char -> Bool
+isCap = isDigit
 
 -- | Convert the string to a span if necessary
 replaceStr
@@ -55,19 +62,24 @@ replaceFilter _ _ x = [x]
 
 -- | Convert capital letters to smallcaps
 smcpFilterInline' :: Inline -> [Inline]
-smcpFilterInline' = replaceFilter isSmcp "cap"
+smcpFilterInline' = replaceFilter isSmcp "smcp"
 
 -- | Convert symbols to smallcaps
 c2scFilterInline' :: Inline -> [Inline]
 c2scFilterInline' = replaceFilter isc2sc "c2sc"
+
+-- | Convert number to caps
+capFilterInline' :: Inline -> [Inline]
+capFilterInline' = replaceFilter isCap "cap"
 
 -- | Only the value associated with the keys in this list will be small capped
 -- in Meta
 metaWhitelist :: [Text]
 metaWhitelist = ["title", "pagetitle"]
 
-smcpFilter' :: Pandoc -> Pandoc
-smcpFilter' (Pandoc (Meta meta) blocks) = Pandoc (Meta meta') blocks'
+-- | Convert capital letters to smcp.
+smcpFilterLegacy' :: Pandoc -> Pandoc
+smcpFilterLegacy' (Pandoc (Meta meta) blocks) = Pandoc (Meta meta') blocks'
   where
     blockFltr :: PartialFilter [Block]
     blockFltr = mkConcatedFilter [c2scFilterInline', smcpFilterInline']
@@ -75,5 +87,19 @@ smcpFilter' (Pandoc (Meta meta) blocks) = Pandoc (Meta meta') blocks'
     blocks' = applyFilter blockFltr blocks
     meta' = foldr (update $ Just . getFilter blockFltr) meta metaWhitelist
 
+-- | Previously convert capital letters to smcp, but now used to convert digits
+-- back to capital letters.
+smcpFilter' :: Pandoc -> Pandoc
+smcpFilter' (Pandoc (Meta meta) blocks) = Pandoc (Meta meta') blocks'
+  where
+    blockFltr :: PartialFilter [Block]
+    blockFltr = mkFilter capFilterInline'
+
+    blocks' = applyFilter blockFltr blocks
+    meta' = foldr (update $ Just . getFilter blockFltr) meta metaWhitelist
+
 smcpFilter :: PandocFilter
 smcpFilter = mkFilter smcpFilter'
+
+smcpFilterLegacy :: PandocFilter
+smcpFilterLegacy = mkFilter smcpFilterLegacy'
