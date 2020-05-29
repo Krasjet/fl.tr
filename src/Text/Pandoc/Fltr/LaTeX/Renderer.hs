@@ -11,13 +11,11 @@ module Text.Pandoc.Fltr.LaTeX.Renderer (
 
 import Text.Pandoc.Fltr.LaTeX.Definitions
 
-import qualified Control.Exception as E
-import qualified Data.Text.IO      as TIO
+import qualified Data.Text.IO as TIO
 
-import Control.DeepSeq            (NFData (..))
+import Control.DeepSeq            (NFData)
 import Control.Monad              (when)
-import Control.Monad.Trans.Except (ExceptT (..), runExceptT, throwE,
-                                   withExceptT)
+import Control.Monad.Trans.Except (ExceptT, runExceptT, throwE, withExceptT)
 import Data.Text                  (Text)
 import Libkst.Hash
 import Libkst.IO
@@ -31,20 +29,6 @@ io :: NFData a
    -> ExceptT RenderError IO a
 io = withExceptT IOException . tryIODeep
 
--- | Perform action on the left. If failed, run action on the right and handle
--- any exceptions.
-orElse
-  :: IO a           -- ^ IO action that might fail.
-  -> ExceptT e IO a -- ^ If action failed, perform this instead
-  -> ExceptT e IO a
-lft `orElse` rgt = ExceptT $ fmap Right lft `E.catch` handler rgt
-  where
-    handler
-      :: ExceptT e IO a -- ^ action to run instead
-      -> E.IOException  -- ^ exception ignored
-      -> IO (Either e a)
-    handler act _ = runExceptT act
-
 cached
   :: FilePath                     -- ^ Cache directory
   -> FilePath                     -- ^ File hash
@@ -53,7 +37,7 @@ cached
 cached dir hash action = do
   let cachePath = dir </> hash <.> "svg"
   -- only compile a new one if no cache exists
-  TIO.readFile cachePath `orElse` do
+  TIO.readFile cachePath `orElseIO` do
     result <- action
     io $ writeFileHandleMissing' cachePath result
     return result
