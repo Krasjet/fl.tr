@@ -40,7 +40,7 @@ isCap = isDigit
 -- | Convert the string to a span if necessary
 replaceStr
   :: (Char -> Bool) -- ^ condition
-  -> Text         -- ^ class
+  -> Text           -- ^ class
   -> Text
   -> Inline
 replaceStr _ _ "" = Str ""
