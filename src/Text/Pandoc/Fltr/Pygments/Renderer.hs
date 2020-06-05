@@ -11,7 +11,7 @@ module Text.Pandoc.Fltr.Pygments.Renderer (
   filterValidAlias,
   getAlias,
   -- * Actual renderer
-  highlightCodeWith
+  highlightCodeRaw
 ) where
 
 import qualified Data.Text    as T
@@ -80,15 +80,16 @@ getAlias :: [(Text,Text)] -> String
 getAlias = toString . fst. head
 {-# INLINE getAlias #-}
 
--- | Highlight code block using pygments with transform.
-highlightCodeWith
-  :: FilePath                   -- ^ Cache directory
-  -> ([Text] -> Text -> Text) -- ^ Transform on the output Html given input class
-  -> Block -> IO Block
-highlightCodeWith cacheDir trans b@(CodeBlock attr@(id', cls, kvpairs) code) = do
+-- | Highlight code snippet using pygments with raw output
+highlightCodeRaw
+  :: FilePath        -- ^ Cache directory
+  -> Attr            -- ^ Attributes
+  -> Text            -- ^ Code
+  -> IO (Maybe Text) -- ^ Rendered html
+highlightCodeRaw cacheDir attr@(id', cls, kvpairs) code = do
   let codeHash = hashCodeBlock attr code
 
-  res <- runMaybeT $ cached cacheDir codeHash $ do
+  runMaybeT $ cached cacheDir codeHash $ do
     let langMaps = filterValidAlias cls
     -- no valid language found
     when (null langMaps) $ fail ""
@@ -102,10 +103,4 @@ highlightCodeWith cacheDir trans b@(CodeBlock attr@(id', cls, kvpairs) code) = d
       , "-O", "wrapcode,cssclass=" <> toString hlLines
       , "-f", "html"
       ] $ toString code
-    return $! trans cls $ addAttrs id' ("sourceCode":cls) kvpairs $ fromString html
-
-  case res of
-    Nothing   -> return b         -- keep block if error
-    Just html -> return $ RawBlock "html" html
-
-highlightCodeWith _ _ x = return x
+    return $! addAttrs id' ("sourceCode":cls) kvpairs $ fromString html

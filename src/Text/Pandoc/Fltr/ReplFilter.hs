@@ -12,41 +12,19 @@ import Data.IORef
 import Data.Text                          (Text)
 import Text.Pandoc.Fltr.Pygments.Renderer
 
-import Control.Monad                            (when)
-import Control.Monad.Trans.Maybe
-import System.Process                           (readProcess)
 import Text.Pandoc.Definition
-import Text.Pandoc.Fltr.Pygments.PostProcessors
 import Text.Pandoc.Utils
 
 -- | Add repl with highlighting, the version in renderer is not general enough
 -- for this.
--- TODO move back to renderer
 addRepl
   :: FilePath                   -- ^ Cache directory
   -> IORef Int                  -- ^ name store
   -> Block -> IO Block
-addRepl cacheDir cp b@(CodeBlock attr@(id', cls, kvpairs) code) = do
-  let codeHash = hashCodeBlock attr code
-
-  res <- runMaybeT $ cached cacheDir codeHash $ do
-    let langMaps = filterValidAlias cls
-    -- no valid language found
-    when (null langMaps) $ fail ""
-
-    -- extract highlight lines from attrs
-    let hlLines = maybe "" (\c -> ",hl_lines=\"" <> c <> "\"") $ lookup "hl_lines" kvpairs
-
-    -- call pygments to render the code
-    html <- io $ readProcess "pygmentize"
-      [ "-l", getAlias langMaps
-      , "-O", "wrapcode,cssclass=" <> toString hlLines
-      , "-f", "html"
-      ] $ toString code
-    return $! addAttrs id' ("sourceCode":cls) kvpairs $ fromString html
-
+addRepl cacheDir cp b@(CodeBlock attr@(_, cls, _) code) = do
+  res <- highlightCodeRaw cacheDir attr code
   case res of
-    Nothing   -> return b         -- keep block if error
+    Nothing   -> return b
     Just html -> RawBlock "html" <$> addPrompt html
   where
     -- | Add prompt to processed html
