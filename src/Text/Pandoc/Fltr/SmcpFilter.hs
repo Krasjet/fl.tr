@@ -25,6 +25,9 @@ smcpChars = Set.fromList ['#', '%']
 c2scChars :: Set Char
 c2scChars = Set.fromList ['&', '[', ']', '(', ')', '{', '}']
 
+capChars :: Set Char
+capChars = Set.fromList ['?', '!', '¿', '¡']
+
 -- | Check if a character should be smcp
 isSmcp :: Char -> Bool
 isSmcp c = isUpper c || c `Set.member` smcpChars
@@ -35,7 +38,7 @@ isc2sc c = c `Set.member` c2scChars
 
 -- | Check if a character should be capital
 isCap :: Char -> Bool
-isCap = isDigit
+isCap c = isDigit c || c `Set.member` capChars
 
 -- | Convert the string to a span if necessary
 replaceStr
