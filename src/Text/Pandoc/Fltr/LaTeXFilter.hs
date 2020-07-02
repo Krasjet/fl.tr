@@ -2,6 +2,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TupleSections     #-}
 
+{-
+ - Adapted from an early version of [1] with support for responsive SVG,
+ - custom preambles, environment parsing, and environment-specific preambles.
+ - [1]: https://github.com/phadej/latex-svg
+ - 2020 Krasjet, 2020 Oleg Grenrus, 2015-2019 Liam O'Connor
+ -}
+
 -- | A filter to transform TeX strings to svg images
 module Text.Pandoc.Fltr.LaTeXFilter (
   preambleFilter,
