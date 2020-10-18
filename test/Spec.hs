@@ -13,6 +13,9 @@ import Text.Pandoc.Fltr.LaTeX.DocumentBuilder
 import Text.Pandoc.Fltr.LaTeX.PostProcessors
 import Text.Pandoc.Fltr.LaTeXFilter
 import Text.Pandoc.Fltr.ParaFilter
+import Text.Pandoc.Fltr.SlashFilter
+import Text.Pandoc.Fltr.DashFilter
+import Text.Pandoc.Fltr.KernFilter
 import Text.Pandoc.Fltr.Pygments.PostProcessors
 
 import qualified Data.Text    as T
@@ -26,6 +29,27 @@ import System.FilePath
 import Text.Pandoc.Builder
 import Text.Pandoc.Utils
 import Text.RawString.QQ
+
+-- | convert markdown to pandoc
+readDoc :: Text -> Pandoc
+readDoc pDoc =
+  case P.runPure $ P.readMarkdown ropts pDoc of
+        Left e  -> error $ "check doc" <> show e
+        Right d -> d
+  where
+    ropts = def
+      { P.readerExtensions = P.pandocExtensions }
+
+-- | convert markdown to pandoc
+writeDoc :: Pandoc -> Text
+writeDoc pDoc =
+  case P.runPure $ P.writeHtml5String wopts pDoc of
+    Left e  -> error $ "check doc" <> show e
+    Right d -> d
+  where
+    wopts = def
+      { P.writerExtensions = P.pandocExtensions
+      }
 
 -- * Break code filter
 
@@ -388,33 +412,12 @@ imageExpect4 = T.strip [r|
 </figure>
 |]
 
--- | convert markdown to pandoc
-readImageDoc :: Text -> Pandoc
-readImageDoc pDoc =
-  case P.runPure $ P.readMarkdown ropts pDoc of
-        Left e  -> error $ "check image doc" <> show e
-        Right d -> d
-  where
-    ropts = def
-      { P.readerExtensions = P.pandocExtensions }
-
--- | convert markdown to pandoc
-writeImageDoc :: Pandoc -> Text
-writeImageDoc pDoc =
-  case P.runPure $ P.writeHtml5String wopts pDoc of
-    Left e  -> error $ "check image doc" <> show e
-    Right d -> d
-  where
-    wopts = def
-      { P.writerExtensions = P.pandocExtensions
-      }
-
 imageSpec :: Spec
 imageSpec = parallel $ do
-  let pDoc1 = readImageDoc imageDoc1
-      pDoc2 = readImageDoc imageDoc2
-      pDoc3 = readImageDoc imageDoc3
-      pDoc4 = readImageDoc imageDoc4
+  let pDoc1 = readDoc imageDoc1
+      pDoc2 = readDoc imageDoc2
+      pDoc3 = readDoc imageDoc3
+      pDoc4 = readDoc imageDoc4
 
   describe "image filter" $ do
     let pDoc1' = applyFilter imageFilter pDoc1
@@ -422,16 +425,70 @@ imageSpec = parallel $ do
         pDoc3' = applyFilter imageFilter pDoc3
         pDoc4' = applyFilter imageFilter pDoc4
     it "wraps images in div" $
-      T.strip (writeImageDoc pDoc1') `shouldBe` imageExpect1
+      T.strip (writeDoc pDoc1') `shouldBe` imageExpect1
 
     it "process linked images" $
-      T.strip (writeImageDoc pDoc2') `shouldBe` imageExpect2
+      T.strip (writeDoc pDoc2') `shouldBe` imageExpect2
 
     it "add links to linked images" $
-      T.strip (writeImageDoc pDoc3') `shouldBe` imageExpect3
+      T.strip (writeDoc pDoc3') `shouldBe` imageExpect3
 
     it "does not touch figures" $
-      T.strip (writeImageDoc pDoc4') `shouldBe` imageExpect4
+      T.strip (writeDoc pDoc4') `shouldBe` imageExpect4
+
+slashDoc :: Text
+slashDoc = T.strip [r|
+test/str
+|]
+
+slashExpect :: Text
+slashExpect = T.strip [r|
+<p>test/<wbr>str</p>
+|]
+
+slashSpec :: Spec
+slashSpec = parallel $
+  describe "slash filter" $
+    it "breaks slashes" $ do
+      let sDoc  = readDoc slashDoc
+          sDoc' = applyFilter slashFilter sDoc
+      T.strip (writeDoc sDoc') `shouldBe` slashExpect
+
+dashDoc :: Text
+dashDoc = T.strip [r|
+test---str
+|]
+
+dashExpect :: Text
+dashExpect = T.strip [r|
+<p><span class="nowrap">test—</span>str</p>
+|]
+
+dashSpec :: Spec
+dashSpec = parallel $
+  describe "dash filter" $
+    it "adds no wrap before dashes" $ do
+      let dDoc  = readDoc dashDoc
+          dDoc' = applyFilter dashFilter dDoc
+      T.strip (writeDoc dDoc') `shouldBe` dashExpect
+
+kernDoc :: Text
+kernDoc = T.strip [r|
+test(jtr
+|]
+
+kernExpect :: Text
+kernExpect = T.strip [r|
+<p>test<span style="letter-spacing:.04em">(</span>jtr</p>
+|]
+
+kernSpec :: Spec
+kernSpec = parallel $
+  describe "kern filter" $
+    it "adds kerning to prespecified kerning pairs" $ do
+      let kDoc  = readDoc kernDoc
+          kDoc' = applyFilter kernFilter kDoc
+      T.strip (writeDoc kDoc') `shouldBe` kernExpect
 
 main :: IO ()
 main = do
@@ -443,6 +500,9 @@ main = do
   testPygments <- testSpec "Pygment postprocessor" pygmentsSpec
   testPara <- testSpec "Paragraph wrapper" paraSpec
   testImage <- testSpec "Image filter" imageSpec
+  testSlash <- testSpec "Slash filter" slashSpec
+  testDash <- testSpec "Dash filter" dashSpec
+  testKern <- testSpec "Kern filter" kernSpec
   defaultMain $ testGroup "Tests"
     [ testBreakCode
     , testEnvParse
@@ -452,4 +512,7 @@ main = do
     , testPygments
     , testPara
     , testImage
+    , testSlash
+    , testDash
+    , testKern
     ]
