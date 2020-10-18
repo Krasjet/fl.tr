@@ -8,7 +8,8 @@ import qualified Data.Map  as Map
 import qualified Data.Text as T
 
 import Data.List                (nub)
-import Data.List.Split          (dropBlanks, oneOf, split)
+import Data.List.Split          (dropFinalBlank, dropInitBlank, dropInnerBlanks,
+                                 oneOf, split)
 import Data.Map                 (Map)
 import Data.Text                (Text)
 import Text.Pandoc.Definition
@@ -50,7 +51,9 @@ appendKern curr acc = Str (T.pack curr) : acc
 kernFilter' :: Inline -> [Inline]
 kernFilter' (Str str) =
   foldr appendKern [] $
-    split (dropBlanks $ oneOf kernPrefix) $ toString str
+    split
+      (dropInnerBlanks . dropFinalBlank . dropInitBlank $ oneOf kernPrefix) $
+      toString str
 kernFilter' x = [x]
 
 kernFilter :: PandocFilter
