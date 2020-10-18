@@ -8,13 +8,13 @@ import qualified Data.Map  as Map
 import qualified Data.Text as T
 
 import Data.List                (nub)
-import Data.List.Split          (dropFinalBlank, dropInitBlank, dropInnerBlanks,
-                                 oneOf, split)
 import Data.Map                 (Map)
 import Data.Text                (Text)
 import Text.Pandoc.Definition
 import Text.Pandoc.Filter.Utils
 import Text.Pandoc.Utils
+
+import Libkst.List (splitWhen)
 
 -- | The kerning table
 kernTable :: Map (Char, Char) Text
@@ -50,10 +50,7 @@ appendKern curr acc = Str (T.pack curr) : acc
 -- | Add manual kerning to some letter pairs
 kernFilter' :: Inline -> [Inline]
 kernFilter' (Str str) =
-  foldr appendKern [] $
-    split
-      (dropInnerBlanks . dropFinalBlank . dropInitBlank $ oneOf kernPrefix) $
-      toString str
+  foldr appendKern [] $ splitWhen (`elem` kernPrefix) $ toString str
 kernFilter' x = [x]
 
 kernFilter :: PandocFilter

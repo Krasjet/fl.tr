@@ -52,7 +52,6 @@ library
     , pandoc-types      ^>=1.20
     , pandoc-utils      ^>=0.7.1
     , raw-strings-qq    ^>=1.1
-    , split             ^>=0.2.3
     , template-haskell   >=2.14  && <3
     , text              ^>=1.2
     , transformers      ^>=0.5
