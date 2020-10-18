@@ -23,6 +23,8 @@ kernTable = Map.fromList
   , (('(', 'J'), ".05em")
   , (('[', 'j'), ".06em")
   , (('[', 'J'), ".07em")
+  , (('{', 'j'), ".05em")
+  , (('{', 'J'), ".05em")
   ]
 kernPrefix :: String
 kernPrefix = nub . map fst $ Map.keys kernTable
