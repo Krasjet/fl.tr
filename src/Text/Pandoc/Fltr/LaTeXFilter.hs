@@ -28,7 +28,7 @@ import Control.Monad              (when)
 import Control.Monad.Trans.Writer
 import Data.Default               (def)
 import Data.Text                  (Text)
-import Libkst.Html
+import Chirp.Html
 import Text.Pandoc.Definition
 import Text.Pandoc.Utils
 

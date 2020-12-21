@@ -21,8 +21,8 @@ import Control.DeepSeq            (NFData)
 import Control.Monad              (when)
 import Control.Monad.Trans.Except (ExceptT, runExceptT, throwE, withExceptT)
 import Data.Text                  (Text)
-import Libkst.Hash
-import Libkst.IO
+import Chirp.Hash
+import Chirp.IO
 import System.Directory           (removeFile)
 import System.Exit                (ExitCode (..))
 import System.FilePath            ((<.>), (</>))

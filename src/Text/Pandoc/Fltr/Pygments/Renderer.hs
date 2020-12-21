@@ -23,8 +23,8 @@ import Control.Monad.Trans.Maybe
 import Data.Map                                 ((!?))
 import Data.Maybe                               (mapMaybe)
 import Data.Text                                (Text)
-import Libkst.Hash
-import Libkst.IO
+import Chirp.Hash
+import Chirp.IO
 import System.FilePath                          ((<.>), (</>))
 import System.Process                           (readProcess)
 import Text.Pandoc.Definition

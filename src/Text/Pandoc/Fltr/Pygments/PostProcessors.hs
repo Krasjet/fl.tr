@@ -8,7 +8,7 @@ module Text.Pandoc.Fltr.Pygments.PostProcessors (
 import qualified Data.Text as T
 
 import Data.Text         (Text)
-import Libkst.Text.Parse
+import Chirp.Text.Parse
 
 -- | Add html
 addAttrs

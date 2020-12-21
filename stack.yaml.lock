@@ -12,16 +12,16 @@ packages:
   original:
     hackage: pandoc-utils-0.7.1
 - completed:
-    name: libkst
+    name: chirp
     version: 0.1.0
-    git: https://github.com/Krasjet/libkst.git
+    git: https://github.com/Krasjet/chirp.git
     pantry-tree:
-      size: 1065
-      sha256: f5b3872f5c822d1aab609bfdbb87f2eb1add14e6706bcdbc2dc8007e9cf1dc70
-    commit: dd5a8c654a53493cf941f570dcb4f776056913c1
+      size: 1056
+      sha256: 82ab93eb0b3f4f839bf680864c33bcd03cfade8dbb1a5bfd06507d948f127bec
+    commit: 5fa6b425664b00c86a87375b44ab8bb7ed02ab17
   original:
-    git: https://github.com/Krasjet/libkst.git
-    commit: dd5a8c654a53493cf941f570dcb4f776056913c1
+    git: https://github.com/Krasjet/chirp.git
+    commit: 5fa6b425664b00c86a87375b44ab8bb7ed02ab17
 snapshots:
 - completed:
     size: 496112

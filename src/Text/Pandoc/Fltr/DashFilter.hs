@@ -7,7 +7,7 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Filter.Utils
 import Text.Pandoc.Utils
 
-import Libkst.List (splitWhen)
+import Chirp.List (splitWhen)
 
 -- | A helper function for dashFilter that adds nowrap to strings like "str—"
 appendNoWrap :: [String] -> [Inline]

@@ -5,7 +5,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: mstksg/setup-stack@v1
+    - uses: actions/setup-haskell@v1.1.4
+      with:
+        ghc-version: '8.8.3'
+        enable-stack: true
+        stack-version: 'latest'
     - uses: actions/cache@v1
       with:
         path: ~/.stack

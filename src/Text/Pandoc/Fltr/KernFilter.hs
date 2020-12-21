@@ -14,7 +14,7 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Filter.Utils
 import Text.Pandoc.Utils
 
-import Libkst.List (splitWhen)
+import Chirp.List (splitWhen)
 
 -- | The kerning table
 kernTable :: Map (Char, Char) Text

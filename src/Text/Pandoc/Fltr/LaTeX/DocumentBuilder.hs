@@ -31,7 +31,7 @@ import qualified Data.Map as Map
 
 import Data.Map               (Map)
 import Data.Maybe             (fromMaybe)
-import Libkst.Text.Parse
+import Chirp.Text.Parse
 import Text.Pandoc.Definition (MathType (..))
 import Text.RawString.QQ
 

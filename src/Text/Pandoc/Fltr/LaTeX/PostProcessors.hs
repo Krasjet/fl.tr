@@ -14,7 +14,7 @@ module Text.Pandoc.Fltr.LaTeX.PostProcessors (
 ) where
 
 import qualified Data.Attoparsec.Text   as A
-import qualified Libkst.Text.Attoparsec as A
+import qualified Chirp.Text.Attoparsec as A
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Fltr.LaTeX.Definitions
@@ -26,7 +26,7 @@ import Control.Monad        (void)
 import Data.Attoparsec.Text (Parser)
 import Data.Maybe           (fromMaybe)
 import Data.Text            (Text)
-import Libkst.Text.Parse
+import Chirp.Text.Parse
 import Numeric
 
 -- * Post processing

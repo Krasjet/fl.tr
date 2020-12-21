@@ -35,7 +35,7 @@ import qualified Control.Exception as E
 import Data.Default
 import Data.Maybe       (fromMaybe)
 import Data.Text        (Text)
-import Libkst.Html      (SVG)
+import Chirp.Html      (SVG)
 import System.Directory (getTemporaryDirectory)
 import System.FilePath  ((</>))
 

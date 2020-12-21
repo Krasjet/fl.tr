@@ -5,5 +5,5 @@ packages:
 
 extra-deps:
 - pandoc-utils-0.7.1
-- git: https://github.com/Krasjet/libkst.git
-  commit: dd5a8c654a53493cf941f570dcb4f776056913c1
+- git: https://github.com/Krasjet/chirp.git
+  commit: 5fa6b425664b00c86a87375b44ab8bb7ed02ab17
