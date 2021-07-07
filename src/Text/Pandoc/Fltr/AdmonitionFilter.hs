@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
--- | Jupyter-like input output repl
+-- | Admonitions via ::: note
 module Text.Pandoc.Fltr.AdmonitionFilter (
   admonitionFilter
 ) where
