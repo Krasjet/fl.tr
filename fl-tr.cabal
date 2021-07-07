@@ -17,6 +17,7 @@ library
   default-language: Haskell2010
   ghc-options:      -Wall
   exposed-modules:
+    Text.Pandoc.Fltr.AdmonitionFilter
     Text.Pandoc.Fltr.BreakCodeFilter
     Text.Pandoc.Fltr.DashFilter
     Text.Pandoc.Fltr.KernFilter
